@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">MyShoppingList</string>
+    <string name="onboarding_email_hint">email</string>
+    <string name="onboarding_password_hint">password</string>
+    <string name="onboarding_log_in_button">Log In</string>
+    <string name="onboarding_sign_up_button">Sign Up</string>
 </resources>
