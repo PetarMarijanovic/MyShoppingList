@@ -5,8 +5,9 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.widget.Toast
-import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.*
 import kotlinx.android.synthetic.main.activity_on_boarding.*
+import java.lang.Exception
 
 class OnBoardingActivity : AppCompatActivity() {
   
@@ -40,13 +41,10 @@ class OnBoardingActivity : AppCompatActivity() {
     firebaseAuth.signInWithEmailAndPassword(email.text.toString(), password.text.toString())
         .addOnCompleteListener(this) { task ->
           Log.d("Petarr", "signInWithEmail:onComplete:" + task.isSuccessful)
-          
-          // If sign in fails, display a message to the user. If sign in succeeds
-          // the auth state listener will be notified and logic to handle the
-          // signed in user can be handled in the listener.
           if (!task.isSuccessful) {
-            Log.w("Petarr", "signInWithEmail:failed", task.exception)
-            Toast.makeText(this@OnBoardingActivity, "Log in failed", Toast.LENGTH_SHORT).show()
+            val errorMessage = logInErrorMessage(task.exception)
+            Log.e("Petarr", "signInWithEmail:failed", task.exception)
+            Toast.makeText(this@OnBoardingActivity, errorMessage, Toast.LENGTH_SHORT).show()
           }
         }
   }
@@ -55,14 +53,28 @@ class OnBoardingActivity : AppCompatActivity() {
     firebaseAuth.createUserWithEmailAndPassword(email.text.toString(), password.text.toString())
         .addOnCompleteListener(this) { task ->
           Log.d("Petarr", "createUserWithEmail:onComplete:" + task.isSuccessful)
-          
-          // If sign in fails, display a message to the user. If sign in succeeds
-          // the auth state listener will be notified and logic to handle the
-          // signed in user can be handled in the listener.
           if (!task.isSuccessful) {
-            Log.w("Petarr", "signInWithEmail:failed", task.exception)
-            Toast.makeText(this@OnBoardingActivity, "Sign up failed", Toast.LENGTH_SHORT).show()
+            val errorMessage = signUpErrorMessage(task.exception)
+            Log.e("Petarr", "signInWithEmail:failed", task.exception)
+            Toast.makeText(this@OnBoardingActivity, errorMessage, Toast.LENGTH_SHORT).show()
           }
         }
   }
+  
+  // https://developers.google.com/android/reference/com/google/firebase/auth/FirebaseAuth#exceptions
+  private fun signUpErrorMessage(exception: Exception?) =
+      when (exception) {
+        is FirebaseAuthWeakPasswordException -> exception.reason
+        is FirebaseAuthInvalidCredentialsException -> getString(R.string.error_malformed_email)
+        is FirebaseAuthUserCollisionException -> getString(R.string.error_email_already_exists)
+        else -> getString(R.string.general_sign_up_log_in_error)
+      }
+  
+  // https://developers.google.com/android/reference/com/google/firebase/auth/FirebaseAuth#exceptions_5
+  private fun logInErrorMessage(exception: Exception?) =
+      when (exception) {
+        is FirebaseAuthInvalidUserException -> getString(R.string.error_email_doesnt_exist_or_disabled)
+        is FirebaseAuthInvalidCredentialsException -> getString(R.string.error_invalid_password)
+        else -> getString(R.string.general_sign_up_log_in_error)
+      }
 }

@@ -4,4 +4,9 @@
     <string name="onboarding_password_hint">password</string>
     <string name="onboarding_log_in_button">Log In</string>
     <string name="onboarding_sign_up_button">Sign Up</string>
+    <string name="error_malformed_email">Email address is malformed</string>
+    <string name="error_email_already_exists">Account with the given email address already exists</string>
+    <string name="error_email_doesnt_exist_or_disabled">Email does not exist or has been disabled</string>
+    <string name="error_invalid_password">Invalid password</string>
+    <string name="general_sign_up_log_in_error">Something went wrong. Please try again later.</string>
 </resources>
