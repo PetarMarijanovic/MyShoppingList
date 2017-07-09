@@ -8,6 +8,18 @@ dependencies:
     - echo y | android update sdk --no-ui --all --filter "build-tools-25.0.3"
     - echo y | android update sdk --no-ui --all --filter "extra-android-m2repository" # Support Repository
 
+  cache_directories:
+    # Android SDK
+    - /usr/local/android-sdk-linux/tools
+    - /usr/local/android-sdk-linux/platform-tools
+    - /usr/local/android-sdk-linux/build-tools
+    - /usr/local/android-sdk-linux/licenses
+    - /usr/local/android-sdk-linux/extras/google/m2repository
+
+    # Gradle caches
+    - /home/ubuntu/.gradle/caches/
+    - /home/ubuntu/.gradle/wrapper/
+
 test:
   override:
     - ./gradlew clean
@@ -17,6 +29,4 @@ test:
 
 general:
   artifacts:
-    - "build/reports"
-
-# TODO Cache something somewhere???
+    - ~/MyShoppingList/app/build/reports/
