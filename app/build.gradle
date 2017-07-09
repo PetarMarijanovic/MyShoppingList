@@ -1,6 +1,11 @@
+plugins {
+    id "io.gitlab.arturbosch.detekt" version "1.0.0.M12.3"
+}
+
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply from: '../config/static_analysis.gradle'
 
 android {
     compileSdkVersion 25
@@ -13,6 +18,12 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+        test.java.srcDirs += 'src/test/kotlin'
+    }
+
     buildTypes {
         release {
             minifyEnabled false

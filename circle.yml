@@ -12,6 +12,11 @@ test:
   override:
     - ./gradlew clean
     - ./gradlew assembleDebug
+    - ./gradlew staticAnalysis
     - ./gradlew test
+
+general:
+  artifacts:
+    - "build/reports"
 
 # TODO Cache something somewhere???
