@@ -25,7 +25,7 @@ test:
     - ./gradlew clean
     - ./gradlew assembleDebug
     - ./gradlew staticAnalysis
-    - ./gradlew test
+    - ./gradlew testDebugUnitTest
 
 general:
   artifacts:
