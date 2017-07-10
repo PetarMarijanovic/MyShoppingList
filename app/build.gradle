@@ -5,6 +5,7 @@ plugins {
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 apply from: '../config/static_analysis.gradle'
 
 android {
@@ -30,7 +31,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    configurations.all {
+        resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.1'
+    }
 }
+
+def firebaseVersion = "10.0.1"
+def daggerVersion = "2.11"
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -39,10 +47,16 @@ dependencies {
     })
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.google.firebase:firebase-auth:10.0.1'
-    compile 'com.google.firebase:firebase-database:10.0.1'
+    compile "com.google.firebase:firebase-auth:$firebaseVersion"
+    compile "com.google.firebase:firebase-database:$firebaseVersion"
     compile "io.reactivex.rxjava2:rxjava:2.1.1"
     compile 'com.google.code.gson:gson:2.8.1'
+    compile "com.google.dagger:dagger:$daggerVersion"
+    compile "com.google.dagger:dagger-android:$daggerVersion"
+    compile "com.google.dagger:dagger-android-support:$daggerVersion"
+    kapt "com.google.dagger:dagger-compiler:$daggerVersion"
+    kapt "com.google.dagger:dagger-android-processor:$daggerVersion"
+
     testCompile 'junit:junit:4.12'
 }
 repositories {

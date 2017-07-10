@@ -3,15 +3,16 @@ package com.petarmarijanovic.myshoppinglist
 import android.os.Bundle
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
 import com.petarmarijanovic.myshoppinglist.rxfirebase.Identity
+import dagger.android.AndroidInjection
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_main.*
+import javax.inject.Inject
 
 class MainActivity : AuthActivity() {
   
-  private val ref = FirebaseDatabase.getInstance().getReference("shopping_list")
-  private val shoppingListRepo = Repo(ref, ShoppingList::class.java)
+  @Inject
+  lateinit var shoppingListRepo: Repo<ShoppingList>
   
   private val subscription = CompositeDisposable()
   
@@ -19,6 +20,7 @@ class MainActivity : AuthActivity() {
   
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    AndroidInjection.inject(this)
     setContentView(R.layout.activity_main)
     logout.setOnClickListener { FirebaseAuth.getInstance().signOut() }
     
