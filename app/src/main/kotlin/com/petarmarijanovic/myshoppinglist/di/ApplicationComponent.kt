@@ -10,14 +10,16 @@ import javax.inject.Singleton
 /** Created by petar on 10/07/2017. */
 @Singleton
 @Component(modules = arrayOf(AndroidInjectionModule::class,
-                             AppModule::class,
-                             ActivityBuilder::class))
-interface AppComponent {
+                             ActivityModules::class,
+                             ApplicationModule::class,
+                             FirebaseModule::class,
+                             RepoModule::class))
+interface ApplicationComponent {
   
   @Component.Builder
   interface Builder {
     @BindsInstance fun application(application: Application): Builder
-    fun build(): AppComponent
+    fun build(): ApplicationComponent
   }
   
   fun inject(app: MyShoppingListApplication)

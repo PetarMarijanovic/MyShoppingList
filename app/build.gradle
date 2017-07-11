@@ -46,17 +46,19 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-    compile 'com.android.support:appcompat-v7:25.3.1'
     compile "com.google.firebase:firebase-auth:$firebaseVersion"
     compile "com.google.firebase:firebase-database:$firebaseVersion"
-    compile "io.reactivex.rxjava2:rxjava:2.1.1"
-    compile 'com.google.code.gson:gson:2.8.1'
     compile "com.google.dagger:dagger:$daggerVersion"
     compile "com.google.dagger:dagger-android:$daggerVersion"
     compile "com.google.dagger:dagger-android-support:$daggerVersion"
     kapt "com.google.dagger:dagger-compiler:$daggerVersion"
     kapt "com.google.dagger:dagger-android-processor:$daggerVersion"
 
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'io.reactivex.rxjava2:rxjava:2.1.1'
+    compile 'com.google.code.gson:gson:2.8.1'
+    compile 'com.android.support:design:25.3.1'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
 }
 repositories {
