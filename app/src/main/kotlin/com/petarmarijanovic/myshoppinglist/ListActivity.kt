@@ -81,21 +81,21 @@ class ListActivity : AuthActivity(), NavigationView.OnNavigationItemSelectedList
   
   override fun onNavigationItemSelected(item: MenuItem): Boolean {
     // Handle navigation view item clicks here.
-    val id = item.itemId
-    
-    if (id == R.id.nav_camera) {
-      // Handle the camera action
-    } else if (id == R.id.nav_gallery) {
-      
-    } else if (id == R.id.nav_slideshow) {
-      
-    } else if (id == R.id.nav_manage) {
-      
-    } else if (id == R.id.nav_share) {
-      
-    } else if (id == R.id.nav_send) {
-      
-    }
+//    val id = item.itemId
+//
+//    if (id == R.id.nav_camera) {
+//      // Handle the camera action
+//    } else if (id == R.id.nav_gallery) {
+//
+//    } else if (id == R.id.nav_slideshow) {
+//
+//    } else if (id == R.id.nav_manage) {
+//
+//    } else if (id == R.id.nav_share) {
+//
+//    } else if (id == R.id.nav_send) {
+//
+//    }
     
     val drawer = findViewById(R.id.drawer_layout) as DrawerLayout
     drawer.closeDrawer(GravityCompat.START)

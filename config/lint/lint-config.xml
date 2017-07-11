@@ -13,4 +13,6 @@
     <!--Add support for Firebase App Indexing, then remove 'GoogleAppIndexingWarning'-->
     <issue id="GoogleAppIndexingWarning" severity="ignore" />
 
+    <issue id="ContentDescription" severity="ignore" />
+
 </lint>
