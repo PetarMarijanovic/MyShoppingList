@@ -1,27 +1,31 @@
-package com.petarmarijanovic.myshoppinglist
+package com.petarmarijanovic.myshoppinglist.screen.onboarding
 
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.widget.Toast
 import com.google.firebase.auth.*
-import kotlinx.android.synthetic.main.activity_on_boarding.*
+import com.petarmarijanovic.myshoppinglist.R
+import com.petarmarijanovic.myshoppinglist.screen.lists.ListsActivity
+import kotlinx.android.synthetic.main.screen_on_boarding.*
 import java.lang.Exception
+import javax.inject.Inject
 
 class OnBoardingActivity : AppCompatActivity() {
   
-  private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
+  @Inject
+  lateinit var firebaseAuth: FirebaseAuth
+  
   private val authStateListener: FirebaseAuth.AuthStateListener = FirebaseAuth.AuthStateListener {
     if (it.currentUser != null) {
       finish()
-      startActivity(Intent(this, MainActivity::class.java))
+      startActivity(Intent(this, ListsActivity::class.java))
     }
   }
   
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    setContentView(R.layout.activity_on_boarding)
+    setContentView(R.layout.screen_on_boarding)
     
     signup.setOnClickListener { signUp() }
     login.setOnClickListener { logIn() }
@@ -33,17 +37,15 @@ class OnBoardingActivity : AppCompatActivity() {
   }
   
   override fun onStop() {
-    super.onStop()
     firebaseAuth.removeAuthStateListener(authStateListener)
+    super.onStop()
   }
   
   private fun logIn() {
     firebaseAuth.signInWithEmailAndPassword(email.text.toString(), password.text.toString())
         .addOnCompleteListener(this) { task ->
-          Log.d("Petarr", "signInWithEmail:onComplete:" + task.isSuccessful)
           if (!task.isSuccessful) {
             val errorMessage = logInErrorMessage(task.exception)
-            Log.e("Petarr", "signInWithEmail:failed", task.exception)
             Toast.makeText(this@OnBoardingActivity, errorMessage, Toast.LENGTH_SHORT).show()
           }
         }
@@ -52,10 +54,8 @@ class OnBoardingActivity : AppCompatActivity() {
   private fun signUp() {
     firebaseAuth.createUserWithEmailAndPassword(email.text.toString(), password.text.toString())
         .addOnCompleteListener(this) { task ->
-          Log.d("Petarr", "createUserWithEmail:onComplete:" + task.isSuccessful)
           if (!task.isSuccessful) {
             val errorMessage = signUpErrorMessage(task.exception)
-            Log.e("Petarr", "signInWithEmail:failed", task.exception)
             Toast.makeText(this@OnBoardingActivity, errorMessage, Toast.LENGTH_SHORT).show()
           }
         }

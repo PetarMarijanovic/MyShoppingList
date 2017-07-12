@@ -1,4 +1,4 @@
-package com.petarmarijanovic.myshoppinglist.rxfirebase
+package com.petarmarijanovic.myshoppinglist.data
 
 import com.google.firebase.database.DataSnapshot
 import com.google.gson.Gson

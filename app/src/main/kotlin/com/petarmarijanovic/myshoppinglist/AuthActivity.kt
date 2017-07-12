@@ -3,10 +3,14 @@ package com.petarmarijanovic.myshoppinglist
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.petarmarijanovic.myshoppinglist.screen.onboarding.OnBoardingActivity
+import javax.inject.Inject
 
 abstract class AuthActivity : AppCompatActivity() {
   
-  private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
+  @Inject
+  lateinit var firebaseAuth: FirebaseAuth
+  
   private val authStateListener: FirebaseAuth.AuthStateListener = FirebaseAuth.AuthStateListener {
     if (it.currentUser == null) {
       finish()
@@ -20,7 +24,7 @@ abstract class AuthActivity : AppCompatActivity() {
   }
   
   override fun onStop() {
-    super.onStop()
     firebaseAuth.removeAuthStateListener(authStateListener)
+    super.onStop()
   }
 }

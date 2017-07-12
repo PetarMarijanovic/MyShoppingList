@@ -1,15 +1,13 @@
-package com.petarmarijanovic.myshoppinglist
+package com.petarmarijanovic.myshoppinglist.data.repo
 
 import com.google.firebase.database.DatabaseReference
-import com.petarmarijanovic.myshoppinglist.rxfirebase.Identity
-import com.petarmarijanovic.myshoppinglist.rxfirebase.observe
-import com.petarmarijanovic.myshoppinglist.rxfirebase.remove
-import com.petarmarijanovic.myshoppinglist.rxfirebase.setValue
+import com.petarmarijanovic.myshoppinglist.data.Identity
+import com.petarmarijanovic.myshoppinglist.rxfirebase.database.observe
+import com.petarmarijanovic.myshoppinglist.rxfirebase.database.remove
+import com.petarmarijanovic.myshoppinglist.rxfirebase.database.setValue
 import io.reactivex.Observable
 
 /** Created by petar on 09/07/2017. */
-data class ShoppingList(val name: String)
-
 class Repo<T>(private val ref: DatabaseReference, private val clazz: Class<T>) {
   
   fun observe(): Observable<List<Identity<T>>> =

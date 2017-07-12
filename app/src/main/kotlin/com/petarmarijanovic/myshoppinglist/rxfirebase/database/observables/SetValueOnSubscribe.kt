@@ -1,4 +1,4 @@
-package com.petarmarijanovic.myshoppinglist.rxfirebase
+package com.petarmarijanovic.myshoppinglist.rxfirebase.database.observables
 
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.database.DatabaseReference
