@@ -23,10 +23,9 @@ class FirebaseModule {
   @Singleton
   internal fun firebaseAuth() = FirebaseAuth.getInstance()
   
-  // TODO UserScope
+  // TODO https://github.com/PetarMarijanovic/MyShoppingList/issues/1
   @Provides
-  @Singleton
   @Named(NAMED_UID)
-  internal fun uid(firebaseAuth: FirebaseAuth) = firebaseAuth.currentUser?.uid
+  internal fun uid(firebaseAuth: FirebaseAuth) = firebaseAuth.currentUser?.uid ?: ""
   
 }

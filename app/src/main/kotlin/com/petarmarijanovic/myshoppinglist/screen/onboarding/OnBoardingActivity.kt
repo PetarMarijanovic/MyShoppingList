@@ -7,6 +7,7 @@ import android.widget.Toast
 import com.google.firebase.auth.*
 import com.petarmarijanovic.myshoppinglist.R
 import com.petarmarijanovic.myshoppinglist.screen.lists.ListsActivity
+import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.screen_on_boarding.*
 import java.lang.Exception
 import javax.inject.Inject
@@ -25,6 +26,7 @@ class OnBoardingActivity : AppCompatActivity() {
   
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    AndroidInjection.inject(this)
     setContentView(R.layout.screen_on_boarding)
     
     signup.setOnClickListener { signUp() }

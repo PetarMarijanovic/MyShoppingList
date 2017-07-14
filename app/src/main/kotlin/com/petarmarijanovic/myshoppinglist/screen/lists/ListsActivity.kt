@@ -4,8 +4,11 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.EditText
 import android.widget.Toast
+import com.google.firebase.auth.FirebaseAuth
 import com.petarmarijanovic.myshoppinglist.AuthActivity
 import com.petarmarijanovic.myshoppinglist.R
 import com.petarmarijanovic.myshoppinglist.data.model.ShoppingList
@@ -51,6 +54,22 @@ class ListsActivity : AuthActivity() {
   override fun onStop() {
     disposables.clear()
     super.onStop()
+  }
+  
+  override fun onCreateOptionsMenu(menu: Menu): Boolean {
+    menuInflater.inflate(R.menu.lists_menu, menu)
+    return true
+  }
+  
+  override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    // Handle item selection
+    when (item.itemId) {
+      R.id.action_settings -> {
+        FirebaseAuth.getInstance().signOut()
+        return true
+      }
+      else -> return super.onOptionsItemSelected(item)
+    }
   }
   
   private fun showCreateListDialog() {

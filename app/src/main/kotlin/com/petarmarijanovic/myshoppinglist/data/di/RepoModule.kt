@@ -7,10 +7,10 @@ import com.petarmarijanovic.myshoppinglist.rxfirebase.di.FirebaseModule
 import dagger.Module
 import dagger.Provides
 import javax.inject.Named
-import javax.inject.Singleton
 
 /** Created by petar on 10/07/2017. */
 // TODO Check if repos are on MainThread
+// TODO https://github.com/PetarMarijanovic/MyShoppingList/issues/1
 @Module
 class RepoModule {
   
@@ -19,7 +19,6 @@ class RepoModule {
   }
   
   @Provides
-  @Singleton
   internal fun shoppingListRepo(@Named(FirebaseModule.NAMED_UID) uid: String?,
                                 firebaseDatabase: FirebaseDatabase): Repo<ShoppingList> =
       Repo(firebaseDatabase.getReference(SHOPPING_LIST).child(uid), ShoppingList::class.java)
