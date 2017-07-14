@@ -1,5 +1,6 @@
 package com.petarmarijanovic.myshoppinglist.application.di
 
+import com.petarmarijanovic.myshoppinglist.screen.items.ItemsActivity
 import com.petarmarijanovic.myshoppinglist.screen.lists.ListsActivity
 import com.petarmarijanovic.myshoppinglist.screen.onboarding.OnBoardingActivity
 import dagger.Module
@@ -10,9 +11,11 @@ import dagger.android.ContributesAndroidInjector
 abstract class ActivityInjector {
   
   @ContributesAndroidInjector
+  internal abstract fun onBoardingActivity(): OnBoardingActivity
+  
+  @ContributesAndroidInjector
   internal abstract fun listsActivity(): ListsActivity
   
   @ContributesAndroidInjector
-  internal abstract fun onBoardingActivity(): OnBoardingActivity
-  
+  internal abstract fun itemsActivity(): ItemsActivity
 }

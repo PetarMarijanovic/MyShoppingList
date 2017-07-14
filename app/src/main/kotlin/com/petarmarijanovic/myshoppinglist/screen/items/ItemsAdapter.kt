@@ -7,35 +7,35 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.petarmarijanovic.myshoppinglist.R
 import com.petarmarijanovic.myshoppinglist.data.Identity
-import com.petarmarijanovic.myshoppinglist.data.model.ShoppingList
+import com.petarmarijanovic.myshoppinglist.data.model.ShoppingItem
 import java.util.*
 
 /** Created by petar on 12/07/2017. */
-class ListsAdapter : RecyclerView.Adapter<ListsAdapter.ViewHolder>() {
+class ItemsAdapter : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
   
-  private var items = Collections.emptyList<Identity<ShoppingList>>()
-  private var clickListener: ((Identity<ShoppingList>) -> Unit)? = null
+  private var items = Collections.emptyList<Identity<ShoppingItem>>()
+  private var clickListener: ((Identity<ShoppingItem>) -> Unit)? = null
   
   override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
     val view = LayoutInflater.from(parent?.context)
-        .inflate(R.layout.list_shopping_list, parent, false)
+        .inflate(R.layout.list_shopping_item, parent, false)
     
     return ViewHolder(view)
   }
   
   override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
-    val list = items[position].value
-    holder?.bindName(list.name)
+    val item = items[position].value
+    holder?.bindName(item.name)
   }
   
   override fun getItemCount() = items.size
   
-  fun show(items: List<Identity<ShoppingList>>) {
+  fun show(items: List<Identity<ShoppingItem>>) {
     this.items = items
     notifyDataSetChanged()
   }
   
-  fun registerClickListener(clickListener: (Identity<ShoppingList>) -> Unit) {
+  fun registerClickListener(clickListener: (Identity<ShoppingItem>) -> Unit) {
     this.clickListener = clickListener
   }
   
