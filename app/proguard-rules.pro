@@ -24,6 +24,14 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
-# Firebase Authentication
+# FIREBASE AUTH
 -keepattributes Signature
 -keepattributes *Annotation*
+
+
+# CRASHLYTICS
+# If you are using custom exceptions, add this line so that custom exception types are skipped during obfuscation
+#-keep public class * extends java.lang.Exception
+-keepattributes SourceFile,LineNumberTable
+-keep class com.crashlytics.** { *; }
+-dontwarn com.crashlytics.**
