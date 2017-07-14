@@ -11,10 +11,12 @@ import android.widget.EditText
 import android.widget.Toast
 import com.petarmarijanovic.myshoppinglist.AuthActivity
 import com.petarmarijanovic.myshoppinglist.R
+import com.petarmarijanovic.myshoppinglist.data.Identity
 import com.petarmarijanovic.myshoppinglist.data.model.ShoppingItem
 import com.petarmarijanovic.myshoppinglist.data.model.ShoppingList
 import com.petarmarijanovic.myshoppinglist.data.repo.Repo
 import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingItemRepo
+import com.petarmarijanovic.myshoppinglist.screen.lists.ItemListener
 import com.petarmarijanovic.myshoppinglist.screen.lists.ItemsAdapter
 import dagger.android.AndroidInjection
 import io.reactivex.disposables.CompositeDisposable
@@ -52,7 +54,44 @@ class ItemsActivity : AuthActivity() {
     
     val context = this
     itemsAdapter = ItemsAdapter().apply {
-      registerClickListener({ startActivity(ItemsActivity.intent(context, it.id)) })
+      registerItemListener(object : ItemListener {
+        override fun toggle(item: Identity<ShoppingItem>) {
+          val value = item.value.copy(checked = !item.value.checked)
+          itemsRepo.update(item.copy(value = value), listId).subscribe({}, {
+            Timber.e(it, "Error while updating item")
+            Toast.makeText(context,
+                           "An error occurred. Try again later.",
+                           Toast.LENGTH_SHORT).show()
+          })
+        }
+        
+        override fun plus(item: Identity<ShoppingItem>) {
+          val value = item.value.copy(quantity = item.value.quantity + 1)
+          itemsRepo.update(item.copy(value = value), listId).subscribe({}, {
+            Timber.e(it, "Error while updating item")
+            Toast.makeText(context,
+                           "An error occurred. Try again later.",
+                           Toast.LENGTH_SHORT).show()
+          })
+        }
+        
+        override fun minus(item: Identity<ShoppingItem>) {
+          val value = item.value.copy(quantity = item.value.quantity - 1)
+          if (value.quantity < 1) itemsRepo.remove(item.id, listId).subscribe({}, {
+            Timber.e(it, "Error while removing item")
+            Toast.makeText(context,
+                           "An error occurred. Try again later.",
+                           Toast.LENGTH_SHORT).show()
+          })
+          else itemsRepo.update(item.copy(value = value), listId).subscribe({}, {
+            Timber.e(it, "Error while updating item")
+            Toast.makeText(context,
+                           "An error occurred. Try again later.",
+                           Toast.LENGTH_SHORT).show()
+          })
+        }
+        
+      })
     }
     
     recycler_view.apply {
@@ -92,7 +131,7 @@ class ItemsActivity : AuthActivity() {
   
   private fun saveList(name: String) {
     disposables.add(
-        itemsRepo.insert(ShoppingItem(name, 1), listId)
+        itemsRepo.insert(ShoppingItem(false, name, 1), listId)
             .subscribe({},
                        {
                          Timber.e(it, "Error while adding item")
