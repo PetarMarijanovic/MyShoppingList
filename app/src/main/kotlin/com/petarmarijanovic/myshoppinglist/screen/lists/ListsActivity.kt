@@ -1,13 +1,9 @@
 package com.petarmarijanovic.myshoppinglist.screen.lists
 
-import android.content.DialogInterface
 import android.os.Bundle
-import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.EditText
-import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.petarmarijanovic.myshoppinglist.AuthActivity
 import com.petarmarijanovic.myshoppinglist.R
@@ -40,12 +36,12 @@ class ListsActivity : AuthActivity() {
     }
     
     recycler_view.apply {
+      adapter = listsAdapter
       layoutManager = LinearLayoutManager(context)
       setHasFixedSize(true)
-      adapter = listsAdapter
     }
     
-    fab.setOnClickListener { showCreateListDialog() }
+    fab.setOnClickListener { startActivity(ItemsActivity.intent(context)) }
   }
   
   override fun onStart() {
@@ -66,7 +62,6 @@ class ListsActivity : AuthActivity() {
   }
   
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
-    // Handle item selection
     when (item.itemId) {
       R.id.action_settings -> {
         FirebaseAuth.getInstance().signOut()
@@ -74,33 +69,5 @@ class ListsActivity : AuthActivity() {
       }
       else -> return super.onOptionsItemSelected(item)
     }
-  }
-  
-  private fun showCreateListDialog() {
-    val view = layoutInflater.inflate(R.layout.dialog_new_list, null)
-    val editText = view.findViewById(R.id.name) as EditText
-    
-    val listener: (DialogInterface, Int) -> Unit = { _, _ ->
-      val name = editText.text.toString()
-      saveList(if (name.isNotBlank()) name else getString(R.string.dialog_new_list_hint))
-    }
-    
-    AlertDialog.Builder(this)
-        .setView(view)
-        .setPositiveButton(R.string.general_add, listener)
-        .setNegativeButton(R.string.general_cancel, null)
-        .show()
-  }
-  
-  private fun saveList(name: String) {
-    disposables.add(
-        listRepo.insert(ShoppingList(name))
-            .subscribe({},
-                       {
-                         Timber.e(it, "Error while saving list")
-                         Toast.makeText(this,
-                                        "An error occurred. Try again later.",
-                                        Toast.LENGTH_SHORT).show()
-                       }))
   }
 }

@@ -19,11 +19,18 @@
 
     </android.support.design.widget.AppBarLayout>
 
+    <EditText
+        android:id="@+id/name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/app_bar_layout"
+        android:hint="@string/dialog_new_list_hint" />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/app_bar_layout" />
+        android:layout_below="@id/name" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
