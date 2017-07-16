@@ -4,11 +4,14 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
+import com.androidhuman.rxfirebase2.database.dataChanges
+import com.androidhuman.rxfirebase2.database.rxSetValue
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import com.petarmarijanovic.myshoppinglist.AuthActivity
 import com.petarmarijanovic.myshoppinglist.R
+import com.petarmarijanovic.myshoppinglist.data.Identity
 import com.petarmarijanovic.myshoppinglist.data.model.ShoppingList
-import com.petarmarijanovic.myshoppinglist.data.repo.Repo
 import com.petarmarijanovic.myshoppinglist.screen.items.ItemsActivity
 import dagger.android.AndroidInjection
 import io.reactivex.disposables.CompositeDisposable
@@ -19,7 +22,7 @@ import javax.inject.Inject
 class ListsActivity : AuthActivity() {
   
   @Inject
-  lateinit var listRepo: Repo<ShoppingList>
+  lateinit var firebaseDatabase: FirebaseDatabase
   
   private val disposables = CompositeDisposable()
   private lateinit var listsAdapter: ListsAdapter
@@ -41,13 +44,24 @@ class ListsActivity : AuthActivity() {
       setHasFixedSize(true)
     }
     
-    fab.setOnClickListener { startActivity(ItemsActivity.intent(context)) }
+    fab.setOnClickListener {
+      firebaseDatabase.getReference("shopping_list").child(FirebaseAuth.getInstance().currentUser?.uid).push()
+          .rxSetValue(ShoppingList("abcd")).subscribe()
+    }
   }
   
   override fun onStart() {
     super.onStart()
-    disposables.add(listRepo.observe().subscribe({ listsAdapter.show(it) },
-                                                 { Timber.e(it, "Error while observing lists") })
+    disposables.add(firebaseDatabase.getReference("shopping_list").child(FirebaseAuth.getInstance().currentUser?.uid)
+                        .dataChanges()
+                        .map { it.children }
+                        .map {
+                          it.map {
+                            Identity(it.ref.key, it.getValue(ShoppingList::class.java)!!)
+                          }.toList()
+                        }
+                        .subscribe({ listsAdapter.show(it) },
+                                   { Timber.e(it, "Error while observing lists") })
     )
   }
   
