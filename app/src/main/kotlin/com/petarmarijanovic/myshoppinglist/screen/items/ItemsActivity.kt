@@ -44,6 +44,11 @@ class ItemsActivity : AuthActivity() {
     
     itemsAdapter = ItemsAdapter().apply {
       registerItemListener(object : ItemListener {
+        
+        override fun swiped(item: Identity<ShoppingItem>) {
+          ref().child(item.id).rxRemoveValue().subscribe()
+        }
+        
         override fun checked(isChecked: Boolean, item: Identity<ShoppingItem>) {
           ref().rxUpdateChildren(mapOf("/${item.id}/checked" to isChecked)).subscribe()
         }
@@ -54,9 +59,7 @@ class ItemsActivity : AuthActivity() {
         
         override fun minus(item: Identity<ShoppingItem>) {
           val quantity = item.value.quantity - 1
-          // TODO Delete by swipe
-          if (quantity < 1) ref().child(item.id).rxRemoveValue().subscribe()
-          else ref().rxUpdateChildren(mapOf("/${item.id}/quantity" to quantity)).subscribe()
+          if (quantity > 0) ref().rxUpdateChildren(mapOf("/${item.id}/quantity" to quantity)).subscribe()
         }
       })
     }

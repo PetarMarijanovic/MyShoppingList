@@ -1,6 +1,9 @@
 package com.petarmarijanovic.myshoppinglist.screen.items
 
+import android.graphics.Canvas
 import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.helper.ItemTouchHelper
+import android.support.v7.widget.helper.ItemTouchHelper.*
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +13,7 @@ import android.widget.TextView
 import com.petarmarijanovic.myshoppinglist.R
 import com.petarmarijanovic.myshoppinglist.data.Identity
 import com.petarmarijanovic.myshoppinglist.data.model.ShoppingItem
+import timber.log.Timber
 
 /** Created by petar on 12/07/2017. */
 class ItemsAdapter : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
@@ -35,6 +39,36 @@ class ItemsAdapter : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
   
   override fun getItemCount() = items.size
   
+  override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+    ItemTouchHelper(object : SimpleCallback(0, LEFT or RIGHT) {
+      override fun onMove(rv: RecyclerView,
+                          viewHolder: RecyclerView.ViewHolder,
+                          target: RecyclerView.ViewHolder?): Boolean {
+        Timber.d("OnMove")
+        return false
+      }
+      
+      override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
+        itemListener?.swiped(items[viewHolder.adapterPosition])
+      }
+      
+      override fun onChildDraw(c: Canvas,
+                               rv: RecyclerView,
+                               viewHolder: RecyclerView.ViewHolder,
+                               dX: Float,
+                               dY: Float,
+                               actionState: Int,
+                               isCurrentlyActive: Boolean) {
+        if (actionState != ItemTouchHelper.ACTION_STATE_SWIPE) {
+          super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+        }
+        
+        val alpha = 1.0f - (Math.abs(dX) / viewHolder.itemView.width) * 2
+        viewHolder.itemView.alpha = if (alpha < 0.2f) 0.2f else alpha
+        viewHolder.itemView.translationX = dX
+      }
+    }).attachToRecyclerView(recyclerView)
+  }
   
   // TODO Should be update
   fun replace(item: Identity<ShoppingItem>) =
@@ -96,5 +130,7 @@ interface ItemListener {
   fun plus(item: Identity<ShoppingItem>)
   
   fun minus(item: Identity<ShoppingItem>)
+  
+  fun swiped(item: Identity<ShoppingItem>)
   
 }
