@@ -44,6 +44,9 @@ class ItemsActivity : AuthActivity() {
     
     itemsAdapter = ItemsAdapter().apply {
       registerItemListener(object : ItemListener {
+        override fun nameFocusLost(name: String, item: Identity<ShoppingItem>) {
+          if (name != item.value.name) ref().rxUpdateChildren(mapOf("/${item.id}/name" to name)).subscribe()
+        }
         
         override fun swiped(item: Identity<ShoppingItem>) {
           ref().child(item.id).rxRemoveValue().subscribe()

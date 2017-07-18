@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
+import android.widget.EditText
 import android.widget.TextView
 import com.petarmarijanovic.myshoppinglist.R
 import com.petarmarijanovic.myshoppinglist.data.Identity
@@ -97,6 +98,7 @@ class ItemsAdapter : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
   inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     
     private val checkbox = view.findViewById(R.id.checkbox) as CheckBox
+    private val name = view.findViewById(R.id.name) as EditText
     private val minus = view.findViewById(R.id.minus) as Button
     private val quantity = view.findViewById(R.id.quantity) as TextView
     private val plus = view.findViewById(R.id.plus) as Button
@@ -107,10 +109,23 @@ class ItemsAdapter : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
       }
       minus.setOnClickListener { itemListener?.minus(items[layoutPosition]) }
       plus.setOnClickListener { itemListener?.plus(items[layoutPosition]) }
+      
+      name.setOnFocusChangeListener { _, hasFocus ->
+        if (!hasFocus) itemListener?.nameFocusLost(name.text.toString(), items[layoutPosition])
+      }
+      
+      view.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+        override fun onViewDetachedFromWindow(v: View?) {
+          name.clearFocus()
+        }
+        
+        override fun onViewAttachedToWindow(v: View?) {}
+        
+      })
     }
     
     fun bindName(name: String) {
-      this.checkbox.text = name
+      this.name.setText(name)
     }
     
     fun bindChecked(checked: Boolean) {
@@ -132,5 +147,7 @@ interface ItemListener {
   fun minus(item: Identity<ShoppingItem>)
   
   fun swiped(item: Identity<ShoppingItem>)
+  
+  fun nameFocusLost(name: String, item: Identity<ShoppingItem>)
   
 }
