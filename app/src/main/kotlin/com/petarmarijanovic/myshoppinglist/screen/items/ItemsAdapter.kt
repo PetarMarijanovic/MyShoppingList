@@ -14,23 +14,18 @@ import com.petarmarijanovic.myshoppinglist.data.model.ShoppingItem
 /** Created by petar on 12/07/2017. */
 class ItemsAdapter : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
   
-  // TODO Avoid MutableList?
-  var items: MutableList<Identity<ShoppingItem>> = ArrayList()
+  private val items: MutableList<Identity<ShoppingItem>> = ArrayList()
   private var itemListener: ItemListener? = null
   
-  public fun indexOf(item: Identity<ShoppingItem>): Int {
-    return items.indexOf(items.filter { it.id == item.id }.firstOrNull()!!)
-  }
-  
-  override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
-    val view = LayoutInflater.from(parent?.context)
+  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    val view = LayoutInflater.from(parent.context)
         .inflate(R.layout.list_shopping_item, parent, false)
     
     return ViewHolder(view)
   }
   
-  override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
-    holder?.apply {
+  override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    holder.apply {
       val item = items[position].value
       bindChecked(item.checked)
       bindName(item.name)
@@ -40,14 +35,23 @@ class ItemsAdapter : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
   
   override fun getItemCount() = items.size
   
-  fun show(items: MutableList<Identity<ShoppingItem>>) {
-    this.items = items
-    notifyDataSetChanged()
-  }
   
-  // TODO Remove nullable
-  fun add(item: Identity<ShoppingItem>?) {
-    if (item == null) return
+  // TODO Should be update
+  fun replace(item: Identity<ShoppingItem>) =
+      items.filter { it.id == item.id }.firstOrNull()?.let {
+        val index = items.indexOf(it)
+        items[index] = item
+        notifyItemChanged(index)
+      }
+  
+  fun remove(item: Identity<ShoppingItem>) =
+      items.filter { it.id == item.id }.firstOrNull()?.let {
+        val index = items.indexOf(it)
+        items.removeAt(index)
+        notifyItemRemoved(index)
+      }
+  
+  fun add(item: Identity<ShoppingItem>) {
     items.add(item)
     notifyItemInserted(items.size - 1)
   }
@@ -65,12 +69,10 @@ class ItemsAdapter : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
     
     init {
       checkbox.setOnCheckedChangeListener { _, isChecked ->
-        // TODO This is only a quick fix
-        val item = items[layoutPosition].value
-        if (item.checked != isChecked) itemListener?.toggle(layoutPosition, items[layoutPosition])
+        itemListener?.checked(isChecked, items[layoutPosition])
       }
-      minus.setOnClickListener { itemListener?.minus(layoutPosition, items[layoutPosition]) }
-      plus.setOnClickListener { itemListener?.plus(layoutPosition, items[layoutPosition]) }
+      minus.setOnClickListener { itemListener?.minus(items[layoutPosition]) }
+      plus.setOnClickListener { itemListener?.plus(items[layoutPosition]) }
     }
     
     fun bindName(name: String) {
@@ -78,7 +80,7 @@ class ItemsAdapter : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
     }
     
     fun bindChecked(checked: Boolean) {
-      checkbox.isChecked = checked
+      if (checkbox.isChecked != checked) checkbox.isChecked = checked
     }
     
     fun bindQuantity(quantity: Int) {
@@ -89,10 +91,10 @@ class ItemsAdapter : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
 
 interface ItemListener {
   
-  fun toggle(position: Int, item: Identity<ShoppingItem>)
+  fun checked(isChecked: Boolean, item: Identity<ShoppingItem>)
   
-  fun plus(position: Int, item: Identity<ShoppingItem>)
+  fun plus(item: Identity<ShoppingItem>)
   
-  fun minus(position: Int, item: Identity<ShoppingItem>)
+  fun minus(item: Identity<ShoppingItem>)
   
 }

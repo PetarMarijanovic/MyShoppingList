@@ -29,32 +29,32 @@ class ItemsActivity : AuthActivity() {
             .apply { listId?.let { putExtra(KEY_LIST_ID, it) } }
   }
   
-  private val disposables = CompositeDisposable()
   private var listId: String? = null
   private lateinit var itemsAdapter: ItemsAdapter
+  private val disposables = CompositeDisposable()
   
   override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
     AndroidInjection.inject(this)
+    super.onCreate(savedInstanceState)
     setContentView(R.layout.screen_items)
     setSupportActionBar(toolbar)
     supportActionBar?.setDisplayHomeAsUpEnabled(true)
     
     listId = intent.getStringExtra(KEY_LIST_ID)
     
-    val context = this
     itemsAdapter = ItemsAdapter().apply {
       registerItemListener(object : ItemListener {
-        override fun toggle(position: Int, item: Identity<ShoppingItem>) {
-          ref().rxUpdateChildren(mapOf("/${item.id}/checked" to !item.value.checked)).subscribe()
+        override fun checked(isChecked: Boolean, item: Identity<ShoppingItem>) {
+          ref().rxUpdateChildren(mapOf("/${item.id}/checked" to isChecked)).subscribe()
         }
         
-        override fun plus(position: Int, item: Identity<ShoppingItem>) {
+        override fun plus(item: Identity<ShoppingItem>) {
           ref().rxUpdateChildren(mapOf("/${item.id}/quantity" to (item.value.quantity + 1))).subscribe()
         }
         
-        override fun minus(position: Int, item: Identity<ShoppingItem>) {
+        override fun minus(item: Identity<ShoppingItem>) {
           val quantity = item.value.quantity - 1
+          // TODO Delete by swipe
           if (quantity < 1) ref().child(item.id).rxRemoveValue().subscribe()
           else ref().rxUpdateChildren(mapOf("/${item.id}/quantity" to quantity)).subscribe()
         }
@@ -82,8 +82,7 @@ class ItemsActivity : AuthActivity() {
   
   private val firebaseDatabase = FirebaseDatabase.getInstance()
   
-  private fun ref() = firebaseDatabase.getReference("shopping_items")
-      .child(listId)
+  private fun ref() = firebaseDatabase.getReference("shopping_items").child(listId)
   
   // TODO For now
   private fun showAddItemDialog() {
@@ -103,47 +102,21 @@ class ItemsActivity : AuthActivity() {
   
   override fun onStart() {
     super.onStart()
-    listId?.let {
-      disposables.add(
-          ref().rxChildEvents()
-              .subscribe({
-                           when (it) {
-                             is ChildAddEvent -> addItem(it)
-                             is ChildChangeEvent -> update(it)
-                             is ChildMoveEvent -> throw IllegalArgumentException(it.toString() + " move not supported")
-                             is ChildRemoveEvent -> remove(it)
-                             else -> throw IllegalArgumentException(it.toString() + " not supported")
-                           }
-                         },
-                         { Timber.e(it, "Error while observing lists") }))
-    }
-  }
-  
-  private fun remove(event: ChildRemoveEvent) {
-    val snapshot = event.dataSnapshot()
-    val value = snapshot.getValue(ShoppingItem::class.java)
-    value?.let {
-      val index = itemsAdapter.indexOf(Identity(snapshot.ref.key, value))
-      itemsAdapter.items.removeAt(index)
-      itemsAdapter.notifyItemRemoved(index)
-    }
-  }
-  
-  private fun update(event: ChildChangeEvent) {
-    val snapshot = event.dataSnapshot()
-    val value = snapshot.getValue(ShoppingItem::class.java)
-    value?.let {
-      val identity = Identity(snapshot.ref.key, value)
-      val index = itemsAdapter.indexOf(identity)
-      itemsAdapter.items[index] = identity
-      itemsAdapter.notifyItemChanged(index)
-    }
-  }
-  
-  private fun addItem(event: ChildAddEvent) {
-    val snapshot = event.dataSnapshot()
-    val value = snapshot.getValue(ShoppingItem::class.java)
-    value?.let { itemsAdapter.add(Identity(snapshot.ref.key, it)) }
+    disposables.add(
+        ref()
+            .rxChildEvents()
+            .subscribe({
+                         val item = Identity.fromSnapshot(it.dataSnapshot(),
+                                                          ShoppingItem::class.java)
+                         when (it) {
+                           is ChildAddEvent -> itemsAdapter.add(item)
+                           is ChildChangeEvent -> itemsAdapter.replace(item)
+                           is ChildMoveEvent -> throw IllegalArgumentException(it.toString() + " move not supported")
+                           is ChildRemoveEvent -> itemsAdapter.remove(item)
+                           else -> throw IllegalArgumentException(it.toString() + " not supported")
+                         }
+                       },
+                       { Timber.e(it, "Error while observing lists") }))
   }
   
   override fun onStop() {
