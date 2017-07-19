@@ -116,7 +116,7 @@ class ItemsActivity : AuthActivity() {
                                                           ShoppingItem::class.java)
                          when (it) {
                            is ChildAddEvent -> itemsAdapter.add(item)
-                           is ChildChangeEvent -> itemsAdapter.replace(item)
+                           is ChildChangeEvent -> itemsAdapter.update(item)
                            is ChildMoveEvent -> throw IllegalArgumentException(it.toString() + " move not supported")
                            is ChildRemoveEvent -> itemsAdapter.remove(item)
                            else -> throw IllegalArgumentException(it.toString() + " not supported")

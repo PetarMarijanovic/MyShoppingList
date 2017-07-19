@@ -1,6 +1,7 @@
 package com.petarmarijanovic.myshoppinglist.screen.items
 
 import android.graphics.Canvas
+import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.support.v7.widget.helper.ItemTouchHelper.*
@@ -69,10 +70,19 @@ class ItemsAdapter : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
         viewHolder.itemView.translationX = dX
       }
     }).attachToRecyclerView(recyclerView)
+    
+    recyclerView.itemAnimator = object : DefaultItemAnimator() {
+      override fun canReuseUpdatedViewHolder(
+          viewHolder: RecyclerView.ViewHolder, payloads: MutableList<Any>) = true
+    }
   }
   
-  // TODO Should be update
-  fun replace(item: Identity<ShoppingItem>) =
+  fun add(item: Identity<ShoppingItem>) {
+    items.add(item)
+    notifyItemInserted(items.size - 1)
+  }
+  
+  fun update(item: Identity<ShoppingItem>) =
       items.filter { it.id == item.id }.firstOrNull()?.let {
         val index = items.indexOf(it)
         items[index] = item
@@ -85,11 +95,6 @@ class ItemsAdapter : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
         items.removeAt(index)
         notifyItemRemoved(index)
       }
-  
-  fun add(item: Identity<ShoppingItem>) {
-    items.add(item)
-    notifyItemInserted(items.size - 1)
-  }
   
   fun registerItemListener(itemListener: ItemListener) {
     this.itemListener = itemListener
