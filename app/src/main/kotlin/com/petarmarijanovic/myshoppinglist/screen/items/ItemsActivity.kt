@@ -1,13 +1,10 @@
 package com.petarmarijanovic.myshoppinglist.screen.items
 
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.view.MenuItem
-import android.widget.EditText
 import com.androidhuman.rxfirebase2.database.*
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -76,7 +73,7 @@ class ItemsActivity : AuthActivity() {
       setHasFixedSize(true)
     }
     
-    fab.setOnClickListener { showAddItemDialog() }
+    fab.setOnClickListener { ref.push().rxSetValue(ShoppingItem(false, "", 1)).subscribe() }
   }
   
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -87,22 +84,6 @@ class ItemsActivity : AuthActivity() {
       }
       else -> return super.onOptionsItemSelected(item)
     }
-  }
-  
-  // TODO For now
-  private fun showAddItemDialog() {
-    val view = layoutInflater.inflate(R.layout.dialog_add_item, null)
-    val editText = view.findViewById(R.id.name) as EditText
-    
-    val listener: (DialogInterface, Int) -> Unit = { _, _ ->
-      ref.push().rxSetValue(ShoppingItem(false, editText.text.toString(), 1)).subscribe()
-    }
-    
-    AlertDialog.Builder(this)
-        .setView(view)
-        .setPositiveButton(R.string.general_add, listener)
-        .setNegativeButton(R.string.general_cancel, null)
-        .show()
   }
   
   override fun onStart() {

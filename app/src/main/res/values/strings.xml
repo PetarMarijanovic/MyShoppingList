@@ -11,7 +11,6 @@
     <string name="general_sign_up_log_in_error">Something went wrong. Please try again later.</string>
     <string name="title_activity_list">MyShoppingList</string>
     <string name="dialog_new_list_hint">New list</string>
-    <string name="dialog_add_item_hint">Add item</string>
     <string name="general_add">Add</string>
     <string name="general_cancel">Cancel</string>
     <string name="menu_lists_settings">Settings</string>
