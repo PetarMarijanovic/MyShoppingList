@@ -5,12 +5,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.MenuItem
-import com.androidhuman.rxfirebase2.database.*
-import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.petarmarijanovic.myshoppinglist.AuthActivity
 import com.petarmarijanovic.myshoppinglist.R
+import com.petarmarijanovic.myshoppinglist.data.Event
 import com.petarmarijanovic.myshoppinglist.data.Identity
+import com.petarmarijanovic.myshoppinglist.data.ShoppingItemRepo
 import com.petarmarijanovic.myshoppinglist.data.model.ShoppingItem
 import dagger.android.AndroidInjection
 import io.reactivex.disposables.CompositeDisposable
@@ -27,8 +27,9 @@ class ItemsActivity : AuthActivity() {
             .apply { listId?.let { putExtra(KEY_LIST_ID, it) } }
   }
   
-  private val firebaseDatabase = FirebaseDatabase.getInstance()
-  private lateinit var itemsRef: DatabaseReference
+  private val itemRepo = ShoppingItemRepo(FirebaseDatabase.getInstance())
+  
+  private lateinit var listId: String
   
   private lateinit var itemsAdapter: ItemsAdapter
   private val disposables = CompositeDisposable()
@@ -40,30 +41,31 @@ class ItemsActivity : AuthActivity() {
     setSupportActionBar(toolbar)
     supportActionBar?.setDisplayHomeAsUpEnabled(true)
     
-    itemsRef =
-        firebaseDatabase.getReference("shopping_items").child(intent.getStringExtra(KEY_LIST_ID))
+    listId = intent.getStringExtra(KEY_LIST_ID)
     
     itemsAdapter = ItemsAdapter().apply {
       registerItemListener(object : ItemListener {
         override fun nameFocusLost(name: String, item: Identity<ShoppingItem>) {
-          if (name != item.value.name) itemsRef.rxUpdateChildren(mapOf("/${item.id}/name" to name)).subscribe()
+          if (name != item.value.name) {
+            itemRepo.update(listId, item.id, "name", name).subscribe()
+          }
         }
         
         override fun swiped(item: Identity<ShoppingItem>) {
-          itemsRef.child(item.id).rxRemoveValue().subscribe()
+          itemRepo.delete(listId, item.id).subscribe()
         }
         
         override fun checked(isChecked: Boolean, item: Identity<ShoppingItem>) {
-          itemsRef.rxUpdateChildren(mapOf("/${item.id}/checked" to isChecked)).subscribe()
+          itemRepo.update(listId, item.id, "checked", isChecked).subscribe()
         }
         
         override fun plus(item: Identity<ShoppingItem>) {
-          itemsRef.rxUpdateChildren(mapOf("/${item.id}/quantity" to (item.value.quantity + 1))).subscribe()
+          itemRepo.update(listId, item.id, "quantity", item.value.quantity + 1).subscribe()
         }
         
         override fun minus(item: Identity<ShoppingItem>) {
           val quantity = item.value.quantity - 1
-          if (quantity > 0) itemsRef.rxUpdateChildren(mapOf("/${item.id}/quantity" to quantity)).subscribe()
+          if (quantity > 0) itemRepo.update(listId, item.id, "quantity", quantity).subscribe()
         }
       })
     }
@@ -74,7 +76,7 @@ class ItemsActivity : AuthActivity() {
       setHasFixedSize(true)
     }
     
-    fab.setOnClickListener { itemsRef.push().rxSetValue(ShoppingItem(false, "", 1)).subscribe() }
+    fab.setOnClickListener { itemRepo.insert(listId, ShoppingItem(false, "", 1)).subscribe() }
   }
   
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -89,21 +91,15 @@ class ItemsActivity : AuthActivity() {
   
   override fun onStart() {
     super.onStart()
-    disposables.add(
-        itemsRef
-            .rxChildEvents()
-            .subscribe({
-                         val item = Identity.fromSnapshot(it.dataSnapshot(),
-                                                          ShoppingItem::class.java)
-                         when (it) {
-                           is ChildAddEvent -> itemsAdapter.add(item)
-                           is ChildChangeEvent -> itemsAdapter.update(item)
-                           is ChildMoveEvent -> throw IllegalArgumentException(it.toString() + " move not supported")
-                           is ChildRemoveEvent -> itemsAdapter.remove(item)
-                           else -> throw IllegalArgumentException(it.toString() + " not supported")
-                         }
-                       },
-                       { Timber.e(it, "Error while observing lists") }))
+    disposables.add(itemRepo.observe(listId)
+                        .subscribe({
+                                     when (it.event) {
+                                       Event.ADD -> itemsAdapter.add(it.item)
+                                       Event.UPDATE -> itemsAdapter.update(it.item)
+                                       Event.REMOVE -> itemsAdapter.remove(it.item)
+                                     }
+                                   },
+                                   { Timber.e(it, "Error while observing items") }))
   }
   
   override fun onStop() {

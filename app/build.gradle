@@ -50,6 +50,11 @@ repositories {
     maven { url 'https://maven.fabric.io/public' }
 }
 
+kapt {
+    generateStubs = true
+    correctErrorTypes = true
+}
+
 def firebase_version = "11.0.2"
 def dagger_version = "2.11"
 def leakCanary_version = "1.5.1"
