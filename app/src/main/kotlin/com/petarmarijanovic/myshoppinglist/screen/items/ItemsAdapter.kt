@@ -42,6 +42,11 @@ class ItemsAdapter : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
   override fun getItemCount() = items.size
   
   override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+    attachItemSwipeAnimator(recyclerView)
+    reuseViewHolder(recyclerView)
+  }
+  
+  private fun attachItemSwipeAnimator(recyclerView: RecyclerView) {
     ItemTouchHelper(object : SimpleCallback(0, LEFT or RIGHT) {
       override fun onMove(rv: RecyclerView,
                           viewHolder: RecyclerView.ViewHolder,
@@ -61,7 +66,7 @@ class ItemsAdapter : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
                                dY: Float,
                                actionState: Int,
                                isCurrentlyActive: Boolean) {
-        if (actionState != ItemTouchHelper.ACTION_STATE_SWIPE) {
+        if (actionState != ACTION_STATE_SWIPE) {
           super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
         }
         
@@ -70,7 +75,14 @@ class ItemsAdapter : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
         viewHolder.itemView.translationX = dX
       }
     }).attachToRecyclerView(recyclerView)
-    
+  }
+  
+  /**
+   * Reuse ViewHolder because the adapter creates a new one on every notifyItemChanged without
+   * payload, and then cross fades them. I don't use payload because I would have to look for
+   * changes manually and then send them as payload.
+   */
+  private fun reuseViewHolder(recyclerView: RecyclerView) {
     recyclerView.itemAnimator = object : DefaultItemAnimator() {
       override fun canReuseUpdatedViewHolder(
           viewHolder: RecyclerView.ViewHolder, payloads: MutableList<Any>) = true
@@ -110,13 +122,25 @@ class ItemsAdapter : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
     
     init {
       checkbox.setOnCheckedChangeListener { _, isChecked ->
+        name.clearFocus()
         itemListener?.checked(isChecked, items[layoutPosition])
       }
-      minus.setOnClickListener { itemListener?.minus(items[layoutPosition]) }
-      plus.setOnClickListener { itemListener?.plus(items[layoutPosition]) }
       
+      minus.setOnClickListener {
+        name.clearFocus()
+        itemListener?.minus(items[layoutPosition])
+      }
+      
+      plus.setOnClickListener {
+        name.clearFocus()
+        itemListener?.plus(items[layoutPosition])
+      }
+      
+      // layoutPosition != -1 is here because if you have focus and swipe to delete item it is -1
       name.setOnFocusChangeListener { _, hasFocus ->
-        if (!hasFocus) itemListener?.nameFocusLost(name.text.toString(), items[layoutPosition])
+        if (!hasFocus && layoutPosition != -1) {
+          itemListener?.nameFocusLost(name.text.toString(), items[layoutPosition])
+        }
       }
       
       view.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
@@ -125,7 +149,6 @@ class ItemsAdapter : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
         }
         
         override fun onViewAttachedToWindow(v: View?) {}
-        
       })
     }
     

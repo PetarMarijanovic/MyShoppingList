@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.MenuItem
 import android.widget.EditText
 import com.androidhuman.rxfirebase2.database.*
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.petarmarijanovic.myshoppinglist.AuthActivity
 import com.petarmarijanovic.myshoppinglist.R
@@ -29,7 +30,9 @@ class ItemsActivity : AuthActivity() {
             .apply { listId?.let { putExtra(KEY_LIST_ID, it) } }
   }
   
-  private var listId: String? = null
+  private val firebaseDatabase = FirebaseDatabase.getInstance()
+  private lateinit var ref: DatabaseReference
+  
   private lateinit var itemsAdapter: ItemsAdapter
   private val disposables = CompositeDisposable()
   
@@ -40,29 +43,29 @@ class ItemsActivity : AuthActivity() {
     setSupportActionBar(toolbar)
     supportActionBar?.setDisplayHomeAsUpEnabled(true)
     
-    listId = intent.getStringExtra(KEY_LIST_ID)
+    ref = firebaseDatabase.getReference("shopping_items").child(intent.getStringExtra(KEY_LIST_ID))
     
     itemsAdapter = ItemsAdapter().apply {
       registerItemListener(object : ItemListener {
         override fun nameFocusLost(name: String, item: Identity<ShoppingItem>) {
-          if (name != item.value.name) ref().rxUpdateChildren(mapOf("/${item.id}/name" to name)).subscribe()
+          if (name != item.value.name) ref.rxUpdateChildren(mapOf("/${item.id}/name" to name)).subscribe()
         }
         
         override fun swiped(item: Identity<ShoppingItem>) {
-          ref().child(item.id).rxRemoveValue().subscribe()
+          ref.child(item.id).rxRemoveValue().subscribe()
         }
         
         override fun checked(isChecked: Boolean, item: Identity<ShoppingItem>) {
-          ref().rxUpdateChildren(mapOf("/${item.id}/checked" to isChecked)).subscribe()
+          ref.rxUpdateChildren(mapOf("/${item.id}/checked" to isChecked)).subscribe()
         }
         
         override fun plus(item: Identity<ShoppingItem>) {
-          ref().rxUpdateChildren(mapOf("/${item.id}/quantity" to (item.value.quantity + 1))).subscribe()
+          ref.rxUpdateChildren(mapOf("/${item.id}/quantity" to (item.value.quantity + 1))).subscribe()
         }
         
         override fun minus(item: Identity<ShoppingItem>) {
           val quantity = item.value.quantity - 1
-          if (quantity > 0) ref().rxUpdateChildren(mapOf("/${item.id}/quantity" to quantity)).subscribe()
+          if (quantity > 0) ref.rxUpdateChildren(mapOf("/${item.id}/quantity" to quantity)).subscribe()
         }
       })
     }
@@ -86,17 +89,13 @@ class ItemsActivity : AuthActivity() {
     }
   }
   
-  private val firebaseDatabase = FirebaseDatabase.getInstance()
-  
-  private fun ref() = firebaseDatabase.getReference("shopping_items").child(listId)
-  
   // TODO For now
   private fun showAddItemDialog() {
     val view = layoutInflater.inflate(R.layout.dialog_add_item, null)
     val editText = view.findViewById(R.id.name) as EditText
     
     val listener: (DialogInterface, Int) -> Unit = { _, _ ->
-      ref().push().rxSetValue(ShoppingItem(false, editText.text.toString(), 1)).subscribe()
+      ref.push().rxSetValue(ShoppingItem(false, editText.text.toString(), 1)).subscribe()
     }
     
     AlertDialog.Builder(this)
@@ -109,7 +108,7 @@ class ItemsActivity : AuthActivity() {
   override fun onStart() {
     super.onStart()
     disposables.add(
-        ref()
+        ref
             .rxChildEvents()
             .subscribe({
                          val item = Identity.fromSnapshot(it.dataSnapshot(),
