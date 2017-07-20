@@ -28,7 +28,7 @@ class ItemsActivity : AuthActivity() {
   }
   
   private val firebaseDatabase = FirebaseDatabase.getInstance()
-  private lateinit var ref: DatabaseReference
+  private lateinit var itemsRef: DatabaseReference
   
   private lateinit var itemsAdapter: ItemsAdapter
   private val disposables = CompositeDisposable()
@@ -40,29 +40,30 @@ class ItemsActivity : AuthActivity() {
     setSupportActionBar(toolbar)
     supportActionBar?.setDisplayHomeAsUpEnabled(true)
     
-    ref = firebaseDatabase.getReference("shopping_items").child(intent.getStringExtra(KEY_LIST_ID))
+    itemsRef =
+        firebaseDatabase.getReference("shopping_items").child(intent.getStringExtra(KEY_LIST_ID))
     
     itemsAdapter = ItemsAdapter().apply {
       registerItemListener(object : ItemListener {
         override fun nameFocusLost(name: String, item: Identity<ShoppingItem>) {
-          if (name != item.value.name) ref.rxUpdateChildren(mapOf("/${item.id}/name" to name)).subscribe()
+          if (name != item.value.name) itemsRef.rxUpdateChildren(mapOf("/${item.id}/name" to name)).subscribe()
         }
         
         override fun swiped(item: Identity<ShoppingItem>) {
-          ref.child(item.id).rxRemoveValue().subscribe()
+          itemsRef.child(item.id).rxRemoveValue().subscribe()
         }
         
         override fun checked(isChecked: Boolean, item: Identity<ShoppingItem>) {
-          ref.rxUpdateChildren(mapOf("/${item.id}/checked" to isChecked)).subscribe()
+          itemsRef.rxUpdateChildren(mapOf("/${item.id}/checked" to isChecked)).subscribe()
         }
         
         override fun plus(item: Identity<ShoppingItem>) {
-          ref.rxUpdateChildren(mapOf("/${item.id}/quantity" to (item.value.quantity + 1))).subscribe()
+          itemsRef.rxUpdateChildren(mapOf("/${item.id}/quantity" to (item.value.quantity + 1))).subscribe()
         }
         
         override fun minus(item: Identity<ShoppingItem>) {
           val quantity = item.value.quantity - 1
-          if (quantity > 0) ref.rxUpdateChildren(mapOf("/${item.id}/quantity" to quantity)).subscribe()
+          if (quantity > 0) itemsRef.rxUpdateChildren(mapOf("/${item.id}/quantity" to quantity)).subscribe()
         }
       })
     }
@@ -73,7 +74,7 @@ class ItemsActivity : AuthActivity() {
       setHasFixedSize(true)
     }
     
-    fab.setOnClickListener { ref.push().rxSetValue(ShoppingItem(false, "", 1)).subscribe() }
+    fab.setOnClickListener { itemsRef.push().rxSetValue(ShoppingItem(false, "", 1)).subscribe() }
   }
   
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -89,7 +90,7 @@ class ItemsActivity : AuthActivity() {
   override fun onStart() {
     super.onStart()
     disposables.add(
-        ref
+        itemsRef
             .rxChildEvents()
             .subscribe({
                          val item = Identity.fromSnapshot(it.dataSnapshot(),

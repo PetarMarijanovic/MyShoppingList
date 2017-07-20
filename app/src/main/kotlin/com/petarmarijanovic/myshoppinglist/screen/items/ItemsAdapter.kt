@@ -1,10 +1,13 @@
 package com.petarmarijanovic.myshoppinglist.screen.items
 
+import android.content.res.Resources
 import android.graphics.Canvas
+import android.graphics.Rect
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.support.v7.widget.helper.ItemTouchHelper.*
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,7 +46,23 @@ class ItemsAdapter : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
   
   override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
     attachItemSwipeAnimator(recyclerView)
+    attachItemDecorator(recyclerView)
     reuseViewHolder(recyclerView)
+  }
+  
+  private fun attachItemDecorator(recyclerView: RecyclerView) {
+    recyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
+      override fun getItemOffsets(outRect: Rect,
+                                  view: View,
+                                  parent: RecyclerView,
+                                  state: RecyclerView.State) {
+        val padding = dpToPx(8f).toInt()
+        outRect.top = padding
+        outRect.left = padding
+        outRect.right = padding
+        if (parent.getChildAdapterPosition(view) == parent.adapter.itemCount - 1) outRect.bottom = 8
+      }
+    })
   }
   
   private fun attachItemSwipeAnimator(recyclerView: RecyclerView) {
@@ -179,3 +198,6 @@ interface ItemListener {
   fun nameFocusLost(name: String, item: Identity<ShoppingItem>)
   
 }
+
+fun dpToPx(dp: Float) =
+    TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, Resources.getSystem().displayMetrics)

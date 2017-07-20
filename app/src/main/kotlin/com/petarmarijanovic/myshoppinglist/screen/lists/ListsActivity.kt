@@ -45,8 +45,9 @@ class ListsActivity : AuthActivity() {
     }
     
     fab.setOnClickListener {
-      firebaseDatabase.getReference("shopping_list").child(FirebaseAuth.getInstance().currentUser?.uid).push()
-          .rxSetValue(ShoppingList("abcd")).subscribe()
+      val ref = firebaseDatabase.getReference("shopping_list").child(FirebaseAuth.getInstance().currentUser?.uid).push()
+      ref.rxSetValue(ShoppingList(""))
+          .subscribe({ startActivity(ItemsActivity.intent(context, ref.key)) })
     }
   }
   

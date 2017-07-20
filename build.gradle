@@ -17,6 +17,7 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
+        maven { url "https://maven.google.com" } // Replace with google() when update to AndroidStudio 3.0
     }
 }
 
