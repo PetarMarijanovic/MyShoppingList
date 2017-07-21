@@ -10,10 +10,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.petarmarijanovic.myshoppinglist.AuthActivity
 import com.petarmarijanovic.myshoppinglist.R
+import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
 import com.petarmarijanovic.myshoppinglist.data.Identity
 import com.petarmarijanovic.myshoppinglist.data.model.ShoppingList
 import com.petarmarijanovic.myshoppinglist.screen.items.ItemsActivity
-import dagger.android.AndroidInjection
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.screen_lists.*
 import timber.log.Timber
@@ -29,7 +29,7 @@ class ListsActivity : AuthActivity() {
   
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    AndroidInjection.inject(this)
+    (application as MyShoppingListApplication).applicationComponent.inject(this)
     setContentView(R.layout.screen_lists)
     setSupportActionBar(toolbar)
     
@@ -53,7 +53,8 @@ class ListsActivity : AuthActivity() {
   
   override fun onStart() {
     super.onStart()
-    disposables.add(firebaseDatabase.getReference("shopping_list").child(FirebaseAuth.getInstance().currentUser?.uid)
+    val uid = FirebaseAuth.getInstance().currentUser?.uid ?: "for now"
+    disposables.add(firebaseDatabase.getReference("shopping_list").child(uid)
                         .dataChanges()
                         .map { it.children }
                         .map {

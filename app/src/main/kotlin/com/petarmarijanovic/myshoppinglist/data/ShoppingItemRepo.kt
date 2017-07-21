@@ -13,7 +13,7 @@ enum class Event {
 
 data class DatabaseEvent(val event: Event, val item: Identity<ShoppingItem>)
 
-class ShoppingItemRepo(firebaseDatabase: FirebaseDatabase) {
+class ShoppingItemRepo(val uid: String, firebaseDatabase: FirebaseDatabase) {
   
   private val itemsRef = firebaseDatabase.getReference("shopping_items")
   

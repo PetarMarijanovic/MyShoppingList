@@ -59,6 +59,7 @@ def firebase_version = "11.0.2"
 def dagger_version = "2.11"
 def leakCanary_version = "1.5.1"
 def support_library_version = "25.4.0"
+def rx_firebase_version = "10.2.6.0"
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -76,6 +77,10 @@ dependencies {
     debugCompile "com.squareup.leakcanary:leakcanary-android:$leakCanary_version"
     releaseCompile "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanary_version"
     testCompile "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanary_version"
+    compile "com.androidhuman.rxfirebase2:firebase-database-kotlin:$rx_firebase_version"
+    compile "com.androidhuman.rxfirebase2:firebase-auth-kotlin:$rx_firebase_version"
+
+    compile 'org.funktionale:funktionale-option:1.0.1'
 
     compile "com.android.support:appcompat-v7:$support_library_version"
     compile "com.android.support:recyclerview-v7:$support_library_version"
@@ -86,7 +91,6 @@ dependencies {
     compile("com.crashlytics.sdk.android:crashlytics:2.6.8@aar") {
         transitive = true
     }
-    compile 'com.androidhuman.rxfirebase2:firebase-database-kotlin:10.2.6.0'
     testCompile 'junit:junit:4.12'
 }
 

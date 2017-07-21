@@ -5,17 +5,17 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.MenuItem
-import com.google.firebase.database.FirebaseDatabase
 import com.petarmarijanovic.myshoppinglist.AuthActivity
 import com.petarmarijanovic.myshoppinglist.R
+import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
 import com.petarmarijanovic.myshoppinglist.data.Event
 import com.petarmarijanovic.myshoppinglist.data.Identity
 import com.petarmarijanovic.myshoppinglist.data.ShoppingItemRepo
 import com.petarmarijanovic.myshoppinglist.data.model.ShoppingItem
-import dagger.android.AndroidInjection
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.screen_items.*
 import timber.log.Timber
+import javax.inject.Inject
 
 class ItemsActivity : AuthActivity() {
   
@@ -27,7 +27,8 @@ class ItemsActivity : AuthActivity() {
             .apply { listId?.let { putExtra(KEY_LIST_ID, it) } }
   }
   
-  private val itemRepo = ShoppingItemRepo(FirebaseDatabase.getInstance())
+  @Inject
+  lateinit var itemRepo: ShoppingItemRepo
   
   private lateinit var listId: String
   
@@ -35,8 +36,8 @@ class ItemsActivity : AuthActivity() {
   private val disposables = CompositeDisposable()
   
   override fun onCreate(savedInstanceState: Bundle?) {
-    AndroidInjection.inject(this)
     super.onCreate(savedInstanceState)
+    (application as MyShoppingListApplication).repoComponent?.inject(this)
     setContentView(R.layout.screen_items)
     setSupportActionBar(toolbar)
     supportActionBar?.setDisplayHomeAsUpEnabled(true)

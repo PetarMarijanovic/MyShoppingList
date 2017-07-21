@@ -1,30 +1,33 @@
 package com.petarmarijanovic.myshoppinglist.application
 
-import android.app.Activity
 import android.app.Application
 import android.os.StrictMode
 import android.util.Log
+import com.androidhuman.rxfirebase2.auth.authStateChanges
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.core.CrashlyticsCore
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.petarmarijanovic.myshoppinglist.BuildConfig
+import com.petarmarijanovic.myshoppinglist.application.di.ApplicationComponent
 import com.petarmarijanovic.myshoppinglist.application.di.DaggerApplicationComponent
+import com.petarmarijanovic.myshoppinglist.data.di.RepoComponent
+import com.petarmarijanovic.myshoppinglist.data.di.RepoModule
 import com.squareup.leakcanary.LeakCanary
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.HasActivityInjector
 import io.fabric.sdk.android.Fabric
+import org.funktionale.option.toOption
 import timber.log.Timber
 import timber.log.Timber.DebugTree
 import javax.inject.Inject
 
 /** Created by petar on 10/07/2017. */
-class MyShoppingListApplication : Application(), HasActivityInjector {
-  
-  @Inject
-  lateinit var activityDispatchingAndroidInjector: DispatchingAndroidInjector<Activity>
+class MyShoppingListApplication : Application() {
   
   @Inject
   lateinit var firebaseDatabase: FirebaseDatabase
+  
+  public lateinit var applicationComponent: ApplicationComponent
+  public var repoComponent: RepoComponent? = null
   
   override fun onCreate() {
     super.onCreate()
@@ -37,8 +40,6 @@ class MyShoppingListApplication : Application(), HasActivityInjector {
     timber()
     strictMode()
   }
-  
-  override fun activityInjector() = activityDispatchingAndroidInjector
   
   private fun leakCanary() {
     if (BuildConfig.DEBUG) LeakCanary.install(this)
@@ -58,7 +59,25 @@ class MyShoppingListApplication : Application(), HasActivityInjector {
     //    Crashlytics.setUserName("Test User")
   }
   
-  private fun dagger() = DaggerApplicationComponent.builder().build().inject(this)
+  private fun dagger() {
+    applicationComponent = DaggerApplicationComponent.builder().build()
+    applicationComponent.inject(this)
+    
+    val uidObservable = FirebaseAuth.getInstance().authStateChanges()
+        .map { it.currentUser.toOption() }
+        .distinctUntilChanged()
+        .replay(1).refCount()
+    
+    uidObservable
+        .subscribe({
+                     if (it.isDefined()) repoComponent = applicationComponent.plus(RepoModule(it.get().uid))
+                     else repoComponent = null
+                   })
+        {
+          Timber.e(it, "Error while creating repoComponent")
+        }
+    
+  }
   
   private fun firebase() = firebaseDatabase.setPersistenceEnabled(true)
   
