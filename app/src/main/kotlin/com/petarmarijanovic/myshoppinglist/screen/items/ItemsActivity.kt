@@ -8,9 +8,9 @@ import android.view.MenuItem
 import com.petarmarijanovic.myshoppinglist.AuthActivity
 import com.petarmarijanovic.myshoppinglist.MyShoppingListApplication
 import com.petarmarijanovic.myshoppinglist.R
+import com.petarmarijanovic.myshoppinglist.data.Event
 import com.petarmarijanovic.myshoppinglist.data.Identity
 import com.petarmarijanovic.myshoppinglist.data.model.ShoppingItem
-import com.petarmarijanovic.myshoppinglist.data.repo.Event
 import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingItemRepo
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.screen_items.*

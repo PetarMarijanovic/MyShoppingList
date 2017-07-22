@@ -24,6 +24,9 @@ class MyShoppingListApplication : Application() {
   @Inject
   lateinit var firebaseDatabase: FirebaseDatabase
   
+  @Inject
+  lateinit var firebaseAuth: FirebaseAuth
+  
   public lateinit var appComponent: AppComponent
   public var userComponent: UserComponent? = null
   
@@ -61,6 +64,8 @@ class MyShoppingListApplication : Application() {
     appComponent = DaggerAppComponent.builder().build()
     appComponent.inject(this)
     
+    if (firebaseAuth.currentUser != null) userComponent = appComponent.plus()
+    
     val uidObservable = FirebaseAuth.getInstance().authStateChanges()
         .map { it.currentUser.toOption() }
         .distinctUntilChanged()
@@ -68,7 +73,7 @@ class MyShoppingListApplication : Application() {
     
     uidObservable
         .subscribe({
-                     if (it.isDefined()) userComponent = appComponent.plus()
+                     if (userComponent == null && it.isDefined()) userComponent = appComponent.plus()
                      else userComponent = null
                    })
         {

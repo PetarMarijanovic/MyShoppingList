@@ -4,15 +4,12 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
-import com.androidhuman.rxfirebase2.database.dataChanges
-import com.androidhuman.rxfirebase2.database.rxSetValue
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
 import com.petarmarijanovic.myshoppinglist.AuthActivity
 import com.petarmarijanovic.myshoppinglist.MyShoppingListApplication
 import com.petarmarijanovic.myshoppinglist.R
-import com.petarmarijanovic.myshoppinglist.data.Identity
 import com.petarmarijanovic.myshoppinglist.data.model.ShoppingList
+import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingListRepo
 import com.petarmarijanovic.myshoppinglist.screen.items.ItemsActivity
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.screen_lists.*
@@ -22,14 +19,14 @@ import javax.inject.Inject
 class ListsActivity : AuthActivity() {
   
   @Inject
-  lateinit var firebaseDatabase: FirebaseDatabase
+  lateinit var listRepo: ShoppingListRepo
   
   private val disposables = CompositeDisposable()
   private lateinit var listsAdapter: ListsAdapter
   
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    (application as MyShoppingListApplication).appComponent.inject(this)
+    (application as MyShoppingListApplication).userComponent?.inject(this)
     setContentView(R.layout.screen_lists)
     setSupportActionBar(toolbar)
     
@@ -45,23 +42,15 @@ class ListsActivity : AuthActivity() {
     }
     
     fab.setOnClickListener {
-      val ref = firebaseDatabase.getReference("shopping_list").child(FirebaseAuth.getInstance().currentUser?.uid).push()
-      ref.rxSetValue(ShoppingList(""))
-          .subscribe({ startActivity(ItemsActivity.intent(context, ref.key)) })
+      listRepo.insert(ShoppingList(""))
+          .subscribe({ startActivity(ItemsActivity.intent(context, it)) },
+                     { Timber.e(it, "Error while inserting list") })
     }
   }
   
   override fun onStart() {
     super.onStart()
-    val uid = FirebaseAuth.getInstance().currentUser?.uid ?: "for now"
-    disposables.add(firebaseDatabase.getReference("shopping_list").child(uid)
-                        .dataChanges()
-                        .map { it.children }
-                        .map {
-                          it.map {
-                            Identity(it.ref.key, it.getValue(ShoppingList::class.java)!!)
-                          }.toList()
-                        }
+    disposables.add(listRepo.observe()
                         .subscribe({ listsAdapter.show(it) },
                                    { Timber.e(it, "Error while observing lists") })
     )
