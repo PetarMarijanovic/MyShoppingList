@@ -33,7 +33,7 @@ abstract class AuthActivity : AppCompatActivity() {
   }
   
   private fun handleNoUser() {
-    finish()
+    finishAffinity()
     startActivity(Intent(this, OnBoardingActivity::class.java))
   }
 }
