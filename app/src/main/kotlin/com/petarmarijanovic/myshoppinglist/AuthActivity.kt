@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
 import com.petarmarijanovic.myshoppinglist.screen.onboarding.OnBoardingActivity
 import javax.inject.Inject
 
@@ -13,13 +14,13 @@ abstract class AuthActivity : AppCompatActivity() {
   lateinit var firebaseAuth: FirebaseAuth
   
   private val authStateListener: FirebaseAuth.AuthStateListener = FirebaseAuth.AuthStateListener {
-    if (it.currentUser == null) handleNoUser()
+    if (it.currentUser == null) startOnBoarding()
   }
   
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     (application as MyShoppingListApplication).appComponent.inject(this)
-    if (firebaseAuth.currentUser == null) handleNoUser()
+    if (firebaseAuth.currentUser == null) startOnBoarding()
   }
   
   override fun onStart() {
@@ -32,7 +33,7 @@ abstract class AuthActivity : AppCompatActivity() {
     super.onStop()
   }
   
-  private fun handleNoUser() {
+  private fun startOnBoarding() {
     finishAffinity()
     startActivity(Intent(this, OnBoardingActivity::class.java))
   }

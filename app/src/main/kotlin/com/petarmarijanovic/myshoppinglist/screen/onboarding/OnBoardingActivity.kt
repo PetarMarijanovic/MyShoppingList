@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import com.google.firebase.auth.*
 import com.petarmarijanovic.myshoppinglist.R
-import com.petarmarijanovic.myshoppinglist.MyShoppingListApplication
+import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
 import com.petarmarijanovic.myshoppinglist.screen.lists.ListsActivity
 import kotlinx.android.synthetic.main.screen_on_boarding.*
 import java.lang.Exception

@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.MenuItem
 import com.petarmarijanovic.myshoppinglist.AuthActivity
-import com.petarmarijanovic.myshoppinglist.MyShoppingListApplication
+import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
 import com.petarmarijanovic.myshoppinglist.R
 import com.petarmarijanovic.myshoppinglist.data.Event
 import com.petarmarijanovic.myshoppinglist.data.Identity

@@ -1,7 +1,7 @@
 package com.petarmarijanovic.myshoppinglist.di.component
 
 import com.petarmarijanovic.myshoppinglist.AuthActivity
-import com.petarmarijanovic.myshoppinglist.MyShoppingListApplication
+import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
 import com.petarmarijanovic.myshoppinglist.di.module.FirebaseModule
 import com.petarmarijanovic.myshoppinglist.screen.onboarding.OnBoardingActivity
 import dagger.Component
@@ -19,6 +19,6 @@ interface AppComponent {
   fun inject(target: AuthActivity)
   
   // TODO What if multiple modules for one component
-  fun plus(): UserComponent
+  fun plusUserComponent(): UserComponent
   
 }
