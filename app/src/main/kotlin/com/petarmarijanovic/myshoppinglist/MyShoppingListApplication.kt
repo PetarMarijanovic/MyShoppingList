@@ -1,4 +1,4 @@
-package com.petarmarijanovic.myshoppinglist.application
+package com.petarmarijanovic.myshoppinglist
 
 import android.app.Application
 import android.os.StrictMode
@@ -8,11 +8,9 @@ import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.core.CrashlyticsCore
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
-import com.petarmarijanovic.myshoppinglist.BuildConfig
-import com.petarmarijanovic.myshoppinglist.application.di.ApplicationComponent
-import com.petarmarijanovic.myshoppinglist.application.di.DaggerApplicationComponent
-import com.petarmarijanovic.myshoppinglist.data.di.RepoComponent
-import com.petarmarijanovic.myshoppinglist.data.di.RepoModule
+import com.petarmarijanovic.myshoppinglist.di.component.AppComponent
+import com.petarmarijanovic.myshoppinglist.di.component.DaggerAppComponent
+import com.petarmarijanovic.myshoppinglist.di.component.UserComponent
 import com.squareup.leakcanary.LeakCanary
 import io.fabric.sdk.android.Fabric
 import org.funktionale.option.toOption
@@ -26,8 +24,8 @@ class MyShoppingListApplication : Application() {
   @Inject
   lateinit var firebaseDatabase: FirebaseDatabase
   
-  public lateinit var applicationComponent: ApplicationComponent
-  public var repoComponent: RepoComponent? = null
+  public lateinit var appComponent: AppComponent
+  public var userComponent: UserComponent? = null
   
   override fun onCreate() {
     super.onCreate()
@@ -60,8 +58,8 @@ class MyShoppingListApplication : Application() {
   }
   
   private fun dagger() {
-    applicationComponent = DaggerApplicationComponent.builder().build()
-    applicationComponent.inject(this)
+    appComponent = DaggerAppComponent.builder().build()
+    appComponent.inject(this)
     
     val uidObservable = FirebaseAuth.getInstance().authStateChanges()
         .map { it.currentUser.toOption() }
@@ -70,11 +68,11 @@ class MyShoppingListApplication : Application() {
     
     uidObservable
         .subscribe({
-                     if (it.isDefined()) repoComponent = applicationComponent.plus(RepoModule(it.get().uid))
-                     else repoComponent = null
+                     if (it.isDefined()) userComponent = appComponent.plus()
+                     else userComponent = null
                    })
         {
-          Timber.e(it, "Error while creating repoComponent")
+          Timber.e(it, "Error while creating userComponent")
         }
     
   }

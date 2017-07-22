@@ -1,4 +1,4 @@
-package com.petarmarijanovic.myshoppinglist.application.di
+package com.petarmarijanovic.myshoppinglist.di.scope
 
 import javax.inject.Scope
 

@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import com.google.firebase.auth.*
 import com.petarmarijanovic.myshoppinglist.R
-import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
+import com.petarmarijanovic.myshoppinglist.MyShoppingListApplication
 import com.petarmarijanovic.myshoppinglist.screen.lists.ListsActivity
 import kotlinx.android.synthetic.main.screen_on_boarding.*
 import java.lang.Exception
@@ -26,7 +26,7 @@ class OnBoardingActivity : AppCompatActivity() {
   
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    (application as MyShoppingListApplication).applicationComponent.inject(this)
+    (application as MyShoppingListApplication).appComponent.inject(this)
     setContentView(R.layout.screen_on_boarding)
     
     signup.setOnClickListener { signUp() }

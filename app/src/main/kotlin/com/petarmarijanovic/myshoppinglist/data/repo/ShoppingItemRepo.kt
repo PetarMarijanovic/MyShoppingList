@@ -1,7 +1,8 @@
-package com.petarmarijanovic.myshoppinglist.data
+package com.petarmarijanovic.myshoppinglist.data.repo
 
 import com.androidhuman.rxfirebase2.database.*
 import com.google.firebase.database.FirebaseDatabase
+import com.petarmarijanovic.myshoppinglist.data.Identity
 import com.petarmarijanovic.myshoppinglist.data.model.ShoppingItem
 import io.reactivex.Observable
 
@@ -27,12 +28,20 @@ class ShoppingItemRepo(val uid: String, firebaseDatabase: FirebaseDatabase) {
   fun observe(listId: String): Observable<DatabaseEvent> =
       itemsRef.child(listId).rxChildEvents()
           .map({
-                 val item = Identity.fromSnapshot(it.dataSnapshot(), ShoppingItem::class.java)
+                 val item = Identity.fromSnapshot(
+                     it.dataSnapshot(),
+                     ShoppingItem::class.java)
                  when (it) {
-                   is ChildAddEvent -> DatabaseEvent(Event.ADD, item)
-                   is ChildChangeEvent -> DatabaseEvent(Event.UPDATE, item)
+                   is ChildAddEvent -> DatabaseEvent(
+                       Event.ADD,
+                       item)
+                   is ChildChangeEvent -> DatabaseEvent(
+                       Event.UPDATE,
+                       item)
                    is ChildMoveEvent -> throw IllegalArgumentException(it.toString() + " move not supported")
-                   is ChildRemoveEvent -> DatabaseEvent(Event.REMOVE, item)
+                   is ChildRemoveEvent -> DatabaseEvent(
+                       Event.REMOVE,
+                       item)
                    else -> throw IllegalArgumentException(it.toString() + " not supported")
                  }
                })
