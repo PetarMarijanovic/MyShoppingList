@@ -3,7 +3,7 @@ package com.petarmarijanovic.myshoppinglist.application.config
 import com.google.firebase.database.FirebaseDatabase
 
 /** Created by petar on 22/07/2017. */
-class FirebaseConfig(val firebaseDatabase: FirebaseDatabase) {
+class FirebaseConfig(val firebaseDatabase: FirebaseDatabase) : ApplicationConfig {
   
-  fun configure() = firebaseDatabase.setPersistenceEnabled(true)
+  override fun configure() = firebaseDatabase.setPersistenceEnabled(true)
 }

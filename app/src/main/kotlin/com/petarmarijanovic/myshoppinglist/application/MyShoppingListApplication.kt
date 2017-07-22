@@ -5,10 +5,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.FirebaseDatabase
 import com.petarmarijanovic.myshoppinglist.BuildConfig
-import com.petarmarijanovic.myshoppinglist.application.config.CrashlyticsConfig
-import com.petarmarijanovic.myshoppinglist.application.config.FirebaseConfig
-import com.petarmarijanovic.myshoppinglist.application.config.StrictModeConfig
-import com.petarmarijanovic.myshoppinglist.application.config.TimberConfig
+import com.petarmarijanovic.myshoppinglist.application.config.ApplicationConfig
 import com.petarmarijanovic.myshoppinglist.di.component.AppComponent
 import com.petarmarijanovic.myshoppinglist.di.component.DaggerAppComponent
 import com.petarmarijanovic.myshoppinglist.di.component.UserComponent
@@ -29,6 +26,10 @@ class MyShoppingListApplication : Application() {
   @Inject
   lateinit var userObservable: Observable<Option<FirebaseUser>>
   
+  // @JvmSuppressWildcards -> https://github.com/google/dagger/issues/668
+  @Inject
+  lateinit var applicationConfigs: Set<@JvmSuppressWildcards ApplicationConfig>
+  
   private var initUserId: String? = null
   lateinit var appComponent: AppComponent
   var userComponent: UserComponent? = null
@@ -42,15 +43,11 @@ class MyShoppingListApplication : Application() {
     
     configureDagger()
     
-    // Configs
-    TimberConfig().configure()
-    CrashlyticsConfig(this, userObservable).configure()
-    FirebaseConfig(firebaseDatabase).configure()
-    StrictModeConfig().configure()
+    applicationConfigs.forEach { it.configure() }
   }
   
   private fun configureDagger() {
-    appComponent = DaggerAppComponent.builder().build()
+    appComponent = DaggerAppComponent.builder().context(this).build()
     appComponent.inject(this)
     
     firebaseAuth.currentUser?.let {

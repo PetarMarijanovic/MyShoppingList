@@ -11,9 +11,10 @@ import org.funktionale.option.Option
 
 /** Created by petar on 22/07/2017. */
 class CrashlyticsConfig(private val context: Context,
-                        private val userObservable: Observable<Option<FirebaseUser>>) {
+                        private val userObservable: Observable<Option<FirebaseUser>>)
+  : ApplicationConfig {
   
-  fun configure() {
+  override fun configure() {
     val crashlyticsKit = Crashlytics.Builder()
         .core(CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
         .build()

@@ -4,9 +4,9 @@ import android.os.StrictMode
 import com.petarmarijanovic.myshoppinglist.BuildConfig
 
 /** Created by petar on 22/07/2017. */
-class StrictModeConfig {
+class StrictModeConfig : ApplicationConfig {
   
-  fun configure() {
+  override fun configure() {
     if (BuildConfig.DEBUG) return
     
     StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder()
