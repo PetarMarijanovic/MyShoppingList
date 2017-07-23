@@ -1,7 +1,7 @@
 package com.petarmarijanovic.myshoppinglist.di.module
 
-import android.app.Application
 import android.content.Context
+import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -12,5 +12,5 @@ class AppModule {
   
   @Provides
   @Singleton
-  fun context(application: Application): Context = application
+  fun context(application: MyShoppingListApplication): Context = application
 }

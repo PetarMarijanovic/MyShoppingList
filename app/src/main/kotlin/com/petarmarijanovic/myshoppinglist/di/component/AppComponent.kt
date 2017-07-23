@@ -1,6 +1,5 @@
 package com.petarmarijanovic.myshoppinglist.di.component
 
-import android.app.Application
 import com.petarmarijanovic.myshoppinglist.AuthActivity
 import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
 import com.petarmarijanovic.myshoppinglist.di.module.AppModule
@@ -18,7 +17,7 @@ interface AppComponent {
   
   @Component.Builder
   interface Builder {
-    @BindsInstance fun application(application: Application): Builder
+    @BindsInstance fun application(application: MyShoppingListApplication): Builder
     fun build(): AppComponent
   }
   
@@ -28,7 +27,6 @@ interface AppComponent {
   
   fun inject(target: AuthActivity)
   
-  // TODO What if multiple modules for one component
-  fun plusUserComponent(): UserComponent
+  fun plusUserComponent(): UserComponent.Builder
   
 }

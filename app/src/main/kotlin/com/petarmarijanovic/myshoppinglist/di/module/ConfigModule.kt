@@ -1,9 +1,10 @@
 package com.petarmarijanovic.myshoppinglist.di.module
 
-import android.app.Application
 import android.content.Context
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.FirebaseDatabase
+import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
 import com.petarmarijanovic.myshoppinglist.application.config.*
 import dagger.Module
 import dagger.Provides
@@ -18,7 +19,15 @@ class ConfigModule {
   
   @Provides @IntoSet
   @Singleton
-  fun leakCanaryConfig(application: Application): LeakCanaryConfig = LeakCanaryConfig(application)
+  fun daggerConfig(firebaseAuth: FirebaseAuth,
+                   userObservable: Observable<Option<FirebaseUser>>,
+                   application: MyShoppingListApplication): ApplicationConfig =
+      DaggerConfig(firebaseAuth, userObservable, application)
+  
+  @Provides @IntoSet
+  @Singleton
+  fun leakCanaryConfig(application: MyShoppingListApplication): ApplicationConfig =
+      LeakCanaryConfig(application)
   
   @Provides @IntoSet
   @Singleton
