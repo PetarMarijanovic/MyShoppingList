@@ -26,7 +26,7 @@ class ListsActivity : AuthActivity() {
   
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    (application as MyShoppingListApplication).userComponent().inject(this)
+    (application as MyShoppingListApplication).userComponent?.inject(this)
     setContentView(R.layout.screen_lists)
     setSupportActionBar(toolbar)
     

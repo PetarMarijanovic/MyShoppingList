@@ -15,9 +15,7 @@ class MyShoppingListApplication : Application() {
   @Inject
   lateinit var applicationConfigs: Set<@JvmSuppressWildcards ApplicationConfig>
   
-  private lateinit var appComponent: AppComponent
-  
-  /** https://github.com/PetarMarijanovic/MyShoppingList/issues/2 */
+  lateinit var appComponent: AppComponent
   var userComponent: UserComponent? = null
   
   override fun onCreate() {
@@ -29,10 +27,6 @@ class MyShoppingListApplication : Application() {
     
     applicationConfigs.forEach { it.configure() }
   }
-  
-  fun appComponent() = appComponent
-  
-  fun userComponent() = userComponent!!
   
   /** https://github.com/PetarMarijanovic/MyShoppingList/issues/2 */
   fun createUserComponent(uid: String) {

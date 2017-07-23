@@ -8,7 +8,10 @@ import com.google.firebase.auth.*
 import com.petarmarijanovic.myshoppinglist.R
 import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
 import com.petarmarijanovic.myshoppinglist.screen.lists.ListsActivity
+import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.screen_on_boarding.*
+import org.funktionale.option.Option
 import java.lang.Exception
 import javax.inject.Inject
 
@@ -17,16 +20,14 @@ class OnBoardingActivity : AppCompatActivity() {
   @Inject
   lateinit var firebaseAuth: FirebaseAuth
   
-  private val authStateListener: FirebaseAuth.AuthStateListener = FirebaseAuth.AuthStateListener {
-    if (it.currentUser != null) {
-      finish()
-      startActivity(Intent(this, ListsActivity::class.java))
-    }
-  }
+  @Inject
+  lateinit var userObservable: Observable<Option<FirebaseUser>>
+  
+  private val subscription = CompositeDisposable()
   
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    (application as MyShoppingListApplication).appComponent().inject(this)
+    (application as MyShoppingListApplication).appComponent.inject(this)
     setContentView(R.layout.screen_on_boarding)
     
     signup.setOnClickListener { signUp() }
@@ -35,12 +36,17 @@ class OnBoardingActivity : AppCompatActivity() {
   
   override fun onStart() {
     super.onStart()
-    firebaseAuth.addAuthStateListener(authStateListener)
+    subscription.add(userObservable.filter { it.nonEmpty() }.subscribe({ finishOnBoarding() }))
   }
   
   override fun onStop() {
-    firebaseAuth.removeAuthStateListener(authStateListener)
+    subscription.clear()
     super.onStop()
+  }
+  
+  private fun finishOnBoarding() {
+    finishAffinity()
+    startActivity(Intent(this, ListsActivity::class.java))
   }
   
   private fun logIn() {
