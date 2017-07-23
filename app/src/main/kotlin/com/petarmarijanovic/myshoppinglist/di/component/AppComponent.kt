@@ -1,8 +1,9 @@
 package com.petarmarijanovic.myshoppinglist.di.component
 
-import android.content.Context
+import android.app.Application
 import com.petarmarijanovic.myshoppinglist.AuthActivity
 import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
+import com.petarmarijanovic.myshoppinglist.di.module.AppModule
 import com.petarmarijanovic.myshoppinglist.di.module.ConfigModule
 import com.petarmarijanovic.myshoppinglist.di.module.FirebaseModule
 import com.petarmarijanovic.myshoppinglist.screen.onboarding.OnBoardingActivity
@@ -12,12 +13,12 @@ import javax.inject.Singleton
 
 /** Created by petar on 10/07/2017. */
 @Singleton
-@Component(modules = arrayOf(ConfigModule::class, FirebaseModule::class))
+@Component(modules = arrayOf(AppModule::class, ConfigModule::class, FirebaseModule::class))
 interface AppComponent {
   
   @Component.Builder
   interface Builder {
-    @BindsInstance fun context(context: Context): Builder
+    @BindsInstance fun application(application: Application): Builder
     fun build(): AppComponent
   }
   

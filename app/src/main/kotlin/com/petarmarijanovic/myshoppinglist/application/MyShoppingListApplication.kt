@@ -3,8 +3,6 @@ package com.petarmarijanovic.myshoppinglist.application
 import android.app.Application
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.FirebaseDatabase
-import com.petarmarijanovic.myshoppinglist.BuildConfig
 import com.petarmarijanovic.myshoppinglist.application.config.ApplicationConfig
 import com.petarmarijanovic.myshoppinglist.di.component.AppComponent
 import com.petarmarijanovic.myshoppinglist.di.component.DaggerAppComponent
@@ -16,9 +14,6 @@ import javax.inject.Inject
 
 /** Created by petar on 10/07/2017. */
 class MyShoppingListApplication : Application() {
-  
-  @Inject
-  lateinit var firebaseDatabase: FirebaseDatabase
   
   @Inject
   lateinit var firebaseAuth: FirebaseAuth
@@ -37,9 +32,7 @@ class MyShoppingListApplication : Application() {
   override fun onCreate() {
     super.onCreate()
     
-    // LeakCanary
     if (LeakCanary.isInAnalyzerProcess(this)) return
-    if (BuildConfig.DEBUG) LeakCanary.install(this)
     
     configureDagger()
     
@@ -47,7 +40,7 @@ class MyShoppingListApplication : Application() {
   }
   
   private fun configureDagger() {
-    appComponent = DaggerAppComponent.builder().context(this).build()
+    appComponent = DaggerAppComponent.builder().application(this).build()
     appComponent.inject(this)
     
     firebaseAuth.currentUser?.let {

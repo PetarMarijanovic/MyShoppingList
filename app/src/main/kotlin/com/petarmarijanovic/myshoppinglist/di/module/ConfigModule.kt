@@ -1,5 +1,6 @@
 package com.petarmarijanovic.myshoppinglist.di.module
 
+import android.app.Application
 import android.content.Context
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.FirebaseDatabase
@@ -14,6 +15,10 @@ import javax.inject.Singleton
 /** Created by petar on 10/07/2017. */
 @Module
 class ConfigModule {
+  
+  @Provides @IntoSet
+  @Singleton
+  fun leakCanaryConfig(application: Application): LeakCanaryConfig = LeakCanaryConfig(application)
   
   @Provides @IntoSet
   @Singleton
