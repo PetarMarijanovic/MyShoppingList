@@ -19,7 +19,7 @@ abstract class AuthActivity : AppCompatActivity() {
   
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    (application as MyShoppingListApplication).appComponent.inject(this)
+    (application as MyShoppingListApplication).appComponent().inject(this)
     if (firebaseAuth.currentUser == null) startOnBoarding()
   }
   

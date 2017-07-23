@@ -6,8 +6,8 @@ import android.view.Menu
 import android.view.MenuItem
 import com.google.firebase.auth.FirebaseAuth
 import com.petarmarijanovic.myshoppinglist.AuthActivity
-import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
 import com.petarmarijanovic.myshoppinglist.R
+import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
 import com.petarmarijanovic.myshoppinglist.data.model.ShoppingList
 import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingListRepo
 import com.petarmarijanovic.myshoppinglist.screen.items.ItemsActivity
@@ -26,7 +26,7 @@ class ListsActivity : AuthActivity() {
   
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    (application as MyShoppingListApplication).userComponent?.inject(this)
+    (application as MyShoppingListApplication).userComponent().inject(this)
     setContentView(R.layout.screen_lists)
     setSupportActionBar(toolbar)
     

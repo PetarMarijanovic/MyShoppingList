@@ -26,7 +26,7 @@ class OnBoardingActivity : AppCompatActivity() {
   
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    (application as MyShoppingListApplication).appComponent.inject(this)
+    (application as MyShoppingListApplication).appComponent().inject(this)
     setContentView(R.layout.screen_on_boarding)
     
     signup.setOnClickListener { signUp() }
