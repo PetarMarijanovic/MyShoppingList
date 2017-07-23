@@ -57,6 +57,7 @@ def support_library_version = "25.4.0"
 def rx_firebase_version = "10.2.6.0"
 
 dependencies {
+
     compile fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'

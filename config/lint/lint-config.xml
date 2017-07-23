@@ -14,5 +14,6 @@
     <issue id="GoogleAppIndexingWarning" severity="ignore" />
 
     <issue id="ContentDescription" severity="ignore" />
+    <issue id="LabelFor" severity="ignore" />
 
 </lint>

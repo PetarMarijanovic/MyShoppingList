@@ -16,7 +16,9 @@ class MyShoppingListApplication : Application() {
   lateinit var applicationConfigs: Set<@JvmSuppressWildcards ApplicationConfig>
   
   private lateinit var appComponent: AppComponent
-  private var userComponent: UserComponent? = null
+  
+  /** https://github.com/PetarMarijanovic/MyShoppingList/issues/2 */
+  var userComponent: UserComponent? = null
   
   override fun onCreate() {
     super.onCreate()
@@ -32,12 +34,12 @@ class MyShoppingListApplication : Application() {
   
   fun userComponent() = userComponent!!
   
-  /** This method should be used only from DaggerConfig */
+  /** https://github.com/PetarMarijanovic/MyShoppingList/issues/2 */
   fun createUserComponent(uid: String) {
     userComponent = appComponent.plusUserComponent().uid(uid).build()
   }
   
-  /** This method should be used only from DaggerConfig */
+  /** https://github.com/PetarMarijanovic/MyShoppingList/issues/2 */
   fun clearUserComponent() {
     userComponent = null
   }

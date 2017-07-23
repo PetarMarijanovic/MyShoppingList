@@ -16,4 +16,6 @@
     <string name="menu_lists_settings">Settings</string>
     <string name="title_activity_items">ItemsActivity</string>
     <string name="action_settings">Settings</string>
+    <string name="item_minus">-</string>
+    <string name="item_plus">+</string>
 </resources>
