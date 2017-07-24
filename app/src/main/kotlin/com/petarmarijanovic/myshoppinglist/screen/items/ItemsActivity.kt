@@ -5,7 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.MenuItem
-import com.petarmarijanovic.myshoppinglist.AuthActivity
+import com.petarmarijanovic.myshoppinglist.screen.AuthActivity
 import com.petarmarijanovic.myshoppinglist.R
 import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
 import com.petarmarijanovic.myshoppinglist.data.Event
@@ -31,7 +31,6 @@ class ItemsActivity : AuthActivity() {
   lateinit var itemRepo: ShoppingItemRepo
   
   private lateinit var listId: String
-  
   private lateinit var itemsAdapter: ItemsAdapter
   private val disposables = CompositeDisposable()
   

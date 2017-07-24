@@ -1,6 +1,6 @@
 package com.petarmarijanovic.myshoppinglist.di.component
 
-import com.petarmarijanovic.myshoppinglist.AuthActivity
+import com.petarmarijanovic.myshoppinglist.screen.AuthActivity
 import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
 import com.petarmarijanovic.myshoppinglist.di.module.AppModule
 import com.petarmarijanovic.myshoppinglist.di.module.ConfigModule

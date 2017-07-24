@@ -1,4 +1,4 @@
-package com.petarmarijanovic.myshoppinglist
+package com.petarmarijanovic.myshoppinglist.screen
 
 import android.content.Intent
 import android.os.Bundle
