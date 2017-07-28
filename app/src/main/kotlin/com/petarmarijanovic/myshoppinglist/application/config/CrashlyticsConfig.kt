@@ -19,7 +19,7 @@ class CrashlyticsConfig(private val context: Context,
         .core(CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
         .build()
     
-    Fabric.with(Fabric.Builder(context).kits(crashlyticsKit).build())
+    disableStrictMode { Fabric.with(Fabric.Builder(context).kits(crashlyticsKit).build()) }
     
     userObservable
         .filter { it.isDefined() }

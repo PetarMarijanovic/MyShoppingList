@@ -7,7 +7,7 @@ import com.petarmarijanovic.myshoppinglist.BuildConfig
 class StrictModeConfig : ApplicationConfig {
   
   override fun configure() {
-    if (BuildConfig.DEBUG) return
+    if (!BuildConfig.DEBUG) return
     
     StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder()
                                    .detectAll()
@@ -21,4 +21,21 @@ class StrictModeConfig : ApplicationConfig {
                                .penaltyDeath()
                                .build())
   }
+}
+
+fun disableStrictMode(func: () -> Any?): Any? {
+  if (!BuildConfig.DEBUG) return func()
+  
+  val oldThreadPolicy = StrictMode.getThreadPolicy()
+  val oldVmPolicy = StrictMode.getVmPolicy()
+  
+  StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder().permitAll().build())
+  StrictMode.setVmPolicy(StrictMode.VmPolicy.Builder().penaltyLog().build())
+  
+  val anyValue = func()
+  
+  StrictMode.setThreadPolicy(oldThreadPolicy)
+  StrictMode.setVmPolicy(oldVmPolicy)
+  
+  return anyValue
 }

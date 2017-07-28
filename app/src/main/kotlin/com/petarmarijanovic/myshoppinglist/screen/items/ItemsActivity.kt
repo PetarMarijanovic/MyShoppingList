@@ -5,13 +5,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.MenuItem
-import com.petarmarijanovic.myshoppinglist.screen.AuthActivity
 import com.petarmarijanovic.myshoppinglist.R
 import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
 import com.petarmarijanovic.myshoppinglist.data.Event
 import com.petarmarijanovic.myshoppinglist.data.Identity
 import com.petarmarijanovic.myshoppinglist.data.model.ShoppingItem
 import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingItemRepo
+import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingListRepo
+import com.petarmarijanovic.myshoppinglist.screen.AuthActivity
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.screen_items.*
 import timber.log.Timber
@@ -26,6 +27,9 @@ class ItemsActivity : AuthActivity() {
         Intent(context, ItemsActivity::class.java)
             .apply { listId?.let { putExtra(KEY_LIST_ID, it) } }
   }
+  
+  @Inject
+  lateinit var listRepo: ShoppingListRepo
   
   @Inject
   lateinit var itemRepo: ShoppingItemRepo
@@ -91,6 +95,10 @@ class ItemsActivity : AuthActivity() {
   
   override fun onStart() {
     super.onStart()
+    disposables.add(listRepo.observe(listId)
+                        .subscribe({ name.setText(it.value.name) },
+                                   { Timber.e(it, "Error while observing items") }))
+    
     disposables.add(itemRepo.observe(listId)
                         .subscribe({
                                      when (it.event) {
@@ -103,6 +111,7 @@ class ItemsActivity : AuthActivity() {
   }
   
   override fun onStop() {
+    listRepo.update(listId, "name", name.text.toString()).subscribe()
     disposables.clear()
     super.onStop()
   }
