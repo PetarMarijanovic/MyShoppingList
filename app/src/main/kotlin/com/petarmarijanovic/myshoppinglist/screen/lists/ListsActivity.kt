@@ -5,11 +5,13 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
 import com.google.firebase.auth.FirebaseAuth
-import com.petarmarijanovic.myshoppinglist.screen.AuthActivity
 import com.petarmarijanovic.myshoppinglist.R
 import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
-import com.petarmarijanovic.myshoppinglist.data.model.ShoppingList
+import com.petarmarijanovic.myshoppinglist.data.Event
+import com.petarmarijanovic.myshoppinglist.data.Identity
+import com.petarmarijanovic.myshoppinglist.data.model.User
 import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingListRepo
+import com.petarmarijanovic.myshoppinglist.screen.AuthActivity
 import com.petarmarijanovic.myshoppinglist.screen.items.ItemsActivity
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.screen_lists.*
@@ -17,6 +19,9 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class ListsActivity : AuthActivity() {
+  
+  @Inject
+  lateinit var user: Identity<User>
   
   @Inject
   lateinit var listRepo: ShoppingListRepo
@@ -42,18 +47,21 @@ class ListsActivity : AuthActivity() {
     }
     
     fab.setOnClickListener {
-      listRepo.insert(ShoppingList(""))
-          .subscribe({ startActivity(ItemsActivity.intent(context, it)) },
-                     { Timber.e(it, "Error while inserting list") })
+      startActivity(ItemsActivity.intent(context, listRepo.newList()))
     }
   }
   
   override fun onStart() {
     super.onStart()
-    disposables.add(listRepo.observe()
-                        .subscribe({ listsAdapter.show(it) },
-                                   { Timber.e(it, "Error while observing lists") })
-    )
+    disposables.add(listRepo.lists()
+                        .subscribe({
+                                     when (it.event) {
+                                       Event.ADD -> listsAdapter.add(it.item)
+                                       Event.UPDATE -> listsAdapter.update(it.item)
+                                       Event.REMOVE -> listsAdapter.remove(it.item)
+                                     }
+                                   },
+                                   { Timber.e(it, "Error while observing lists") }))
   }
   
   override fun onStop() {

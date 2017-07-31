@@ -13,7 +13,7 @@ import java.util.*
 /** Created by petar on 12/07/2017. */
 class ListsAdapter : RecyclerView.Adapter<ListsAdapter.ViewHolder>() {
   
-  private var items = Collections.emptyList<Identity<ShoppingList>>()
+  private var items: MutableList<Identity<ShoppingList>> = ArrayList()
   private var clickListener: ((Identity<ShoppingList>) -> Unit)? = null
   
   override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
@@ -25,15 +25,29 @@ class ListsAdapter : RecyclerView.Adapter<ListsAdapter.ViewHolder>() {
   
   override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
     val list = items[position].value
-    holder?.bindName(list.name)
+    holder?.bindName(list.name + "\n" + list.users.toString() + "\n" + list.items.toString())
   }
   
   override fun getItemCount() = items.size
   
-  fun show(items: List<Identity<ShoppingList>>) {
-    this.items = items
-    notifyDataSetChanged()
+  fun add(item: Identity<ShoppingList>) {
+    items.add(item)
+    notifyItemInserted(items.size - 1)
   }
+  
+  fun update(item: Identity<ShoppingList>) =
+      items.filter { it.id == item.id }.firstOrNull()?.let {
+        val index = items.indexOf(it)
+        items[index] = item
+        notifyItemChanged(index)
+      }
+  
+  fun remove(item: Identity<ShoppingList>) =
+      items.filter { it.id == item.id }.firstOrNull()?.let {
+        val index = items.indexOf(it)
+        items.removeAt(index)
+        notifyItemRemoved(index)
+      }
   
   fun registerClickListener(clickListener: (Identity<ShoppingList>) -> Unit) {
     this.clickListener = clickListener
