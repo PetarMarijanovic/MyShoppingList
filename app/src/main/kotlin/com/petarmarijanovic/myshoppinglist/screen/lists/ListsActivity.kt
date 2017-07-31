@@ -9,6 +9,7 @@ import com.petarmarijanovic.myshoppinglist.R
 import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
 import com.petarmarijanovic.myshoppinglist.data.Event
 import com.petarmarijanovic.myshoppinglist.data.Identity
+import com.petarmarijanovic.myshoppinglist.data.model.ShoppingList
 import com.petarmarijanovic.myshoppinglist.data.model.User
 import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingListRepo
 import com.petarmarijanovic.myshoppinglist.screen.AuthActivity
@@ -37,7 +38,15 @@ class ListsActivity : AuthActivity() {
     
     val context = this
     listsAdapter = ListsAdapter().apply {
-      registerClickListener({ startActivity(ItemsActivity.intent(context, it.id)) })
+      registerClickListener(object : ListListener {
+        override fun click(list: Identity<ShoppingList>) {
+          startActivity(ItemsActivity.intent(context, list.id))
+        }
+        
+        override fun swiped(list: Identity<ShoppingList>) {
+          listRepo.deleteList(list)
+        }
+      })
     }
     
     recycler_view.apply {
@@ -53,6 +62,7 @@ class ListsActivity : AuthActivity() {
   
   override fun onStart() {
     super.onStart()
+    listsAdapter.clear()
     disposables.add(listRepo.lists()
                         .subscribe({
                                      when (it.event) {

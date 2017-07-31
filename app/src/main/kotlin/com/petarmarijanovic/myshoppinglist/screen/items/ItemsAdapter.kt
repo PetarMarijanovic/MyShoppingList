@@ -108,6 +108,12 @@ class ItemsAdapter : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
     }
   }
   
+  fun clear() {
+    val size = items.size
+    items.clear()
+    notifyItemRangeRemoved(0, size)
+  }
+  
   fun add(item: Identity<ShoppingItem>) {
     items.add(item)
     notifyItemInserted(items.size - 1)

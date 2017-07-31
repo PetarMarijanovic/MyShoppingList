@@ -45,9 +45,6 @@ class ShoppingListRepo(val user: Identity<User>, firebaseDatabase: FirebaseDatab
       listsRef.child(listId).child("name").dataChanges()
           .map { if (it.value != null) (it.value as String).toOption() else Option.None }
   
-  fun addItem(listId: String, item: ShoppingItem): Task<Void> =
-      listsRef.child(listId).child(ITEMS).push().setValue(item)
-  
   fun list(id: String): Observable<DatabaseEvent<Identity<ShoppingList>>> =
       listsRef.childEvents().filter { it.dataSnapshot().key == id }
           .map {
@@ -81,6 +78,14 @@ class ShoppingListRepo(val user: Identity<User>, firebaseDatabase: FirebaseDatab
         }
       }
   
+  fun deleteList(list: Identity<ShoppingList>) {
+    // TODO Make this better with firebase functions
+    // https://firebase.google.com/docs/functions/get-started
+    usersRef.child(list.id).removeValue()
+    if (list.value.users.size == 1) listsRef.child(list.id).removeValue()
+    else listsRef.child(list.id).child("users").child(user.id).removeValue()
+  }
+  
   private fun toShoppingList(snapshot: DataSnapshot): Identity<ShoppingList> {
     val name = snapshot.child("name").value?.let { it as String } ?: ""
     
@@ -94,5 +99,27 @@ class ShoppingListRepo(val user: Identity<User>, firebaseDatabase: FirebaseDatab
     
     return Identity(snapshot.key, ShoppingList(name, users, items))
   }
+  
+  fun addItem(listId: String, item: ShoppingItem): Task<Void> =
+      listsRef.child(listId).child(ITEMS).push().setValue(item)
+  
+  fun updateItem(listId: String, id: String, field: String, value: Any) =
+      listsRef.child(listId).child("items").rxUpdateChildren(mapOf("/$id/$field" to value))
+  
+  fun deleteItem(listId: String, id: String) =
+      listsRef.child(listId).child("items").child(id).rxRemoveValue()
+  
+  fun items(listId: String): Observable<DatabaseEvent<Identity<ShoppingItem>>> =
+      listsRef.child(listId).child("items").rxChildEvents()
+          .map({
+                 val item = Identity.fromSnapshot(it.dataSnapshot(), ShoppingItem::class.java)
+                 when (it) {
+                   is ChildAddEvent -> DatabaseEvent(Event.ADD, item)
+                   is ChildChangeEvent -> DatabaseEvent(Event.UPDATE, item)
+                   is ChildMoveEvent -> throw IllegalArgumentException(it.toString() + " move not supported")
+                   is ChildRemoveEvent -> DatabaseEvent(Event.REMOVE, item)
+                   else -> throw IllegalArgumentException(it.toString() + " not supported")
+                 }
+               })
 }
 
