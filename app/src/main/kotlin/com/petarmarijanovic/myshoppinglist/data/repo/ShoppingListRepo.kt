@@ -15,7 +15,7 @@ import org.funktionale.option.Option
 import org.funktionale.option.toOption
 
 /** Created by petar on 20/07/2017. */
-class ShoppingListRepo(val user: Identity<User>, firebaseDatabase: FirebaseDatabase) {
+class ShoppingListRepo(private val user: Identity<User>, firebaseDatabase: FirebaseDatabase) {
   
   companion object {
     const val LISTS = "lists"
@@ -104,10 +104,13 @@ class ShoppingListRepo(val user: Identity<User>, firebaseDatabase: FirebaseDatab
       listsRef.child(listId).child(ITEMS).push().setValue(item)
   
   fun updateItem(listId: String, id: String, field: String, value: Any) =
-      listsRef.child(listId).child("items").rxUpdateChildren(mapOf("/$id/$field" to value))
+      listsRef.child(listId).child("items").updateChildren(mapOf("/$id/$field" to value))
   
   fun deleteItem(listId: String, id: String) =
-      listsRef.child(listId).child("items").child(id).rxRemoveValue()
+      listsRef.child(listId).child("items").child(id).removeValue()
+  
+  fun deleteUser(listId: String, id: String) =
+      listsRef.child(listId).child("users").child(id).removeValue()
   
   fun items(listId: String): Observable<DatabaseEvent<Identity<ShoppingItem>>> =
       listsRef.child(listId).child("items").rxChildEvents()
@@ -116,7 +119,18 @@ class ShoppingListRepo(val user: Identity<User>, firebaseDatabase: FirebaseDatab
                  when (it) {
                    is ChildAddEvent -> DatabaseEvent(Event.ADD, item)
                    is ChildChangeEvent -> DatabaseEvent(Event.UPDATE, item)
-                   is ChildMoveEvent -> throw IllegalArgumentException(it.toString() + " move not supported")
+                   is ChildRemoveEvent -> DatabaseEvent(Event.REMOVE, item)
+                   else -> throw IllegalArgumentException(it.toString() + " not supported")
+                 }
+               })
+  
+  fun users(listId: String): Observable<DatabaseEvent<Identity<User>>> =
+      listsRef.child(listId).child("users").rxChildEvents()
+          .map({
+                 val item = Identity.fromSnapshot(it.dataSnapshot(), User::class.java)
+                 when (it) {
+                   is ChildAddEvent -> DatabaseEvent(Event.ADD, item)
+                   is ChildChangeEvent -> DatabaseEvent(Event.UPDATE, item)
                    is ChildRemoveEvent -> DatabaseEvent(Event.REMOVE, item)
                    else -> throw IllegalArgumentException(it.toString() + " not supported")
                  }

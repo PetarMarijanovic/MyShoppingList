@@ -80,7 +80,7 @@ class ListsActivity : AuthActivity() {
   }
   
   override fun onCreateOptionsMenu(menu: Menu): Boolean {
-    menuInflater.inflate(R.menu.lists_menu, menu)
+    menuInflater.inflate(R.menu.menu_lists, menu)
     return true
   }
   

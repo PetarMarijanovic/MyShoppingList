@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import android.view.Menu
 import android.view.MenuItem
 import com.petarmarijanovic.myshoppinglist.R
 import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
@@ -12,6 +13,7 @@ import com.petarmarijanovic.myshoppinglist.data.Identity
 import com.petarmarijanovic.myshoppinglist.data.model.ShoppingItem
 import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingListRepo
 import com.petarmarijanovic.myshoppinglist.screen.AuthActivity
+import com.petarmarijanovic.myshoppinglist.screen.users.UsersActivity
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.screen_items.*
 import timber.log.Timber
@@ -47,25 +49,25 @@ class ItemsActivity : AuthActivity() {
       registerItemListener(object : ItemListener {
         override fun nameFocusLost(name: String, item: Identity<ShoppingItem>) {
           if (name != item.value.name) {
-            listRepo.updateItem(listId, item.id, "name", name).subscribe()
+            listRepo.updateItem(listId, item.id, "name", name)
           }
         }
         
         override fun swiped(item: Identity<ShoppingItem>) {
-          listRepo.deleteItem(listId, item.id).subscribe()
+          listRepo.deleteItem(listId, item.id)
         }
         
         override fun checked(isChecked: Boolean, item: Identity<ShoppingItem>) {
-          listRepo.updateItem(listId, item.id, "checked", isChecked).subscribe()
+          listRepo.updateItem(listId, item.id, "checked", isChecked)
         }
         
         override fun plus(item: Identity<ShoppingItem>) {
-          listRepo.updateItem(listId, item.id, "quantity", item.value.quantity + 1).subscribe()
+          listRepo.updateItem(listId, item.id, "quantity", item.value.quantity + 1)
         }
         
         override fun minus(item: Identity<ShoppingItem>) {
           val quantity = item.value.quantity - 1
-          if (quantity > 0) listRepo.updateItem(listId, item.id, "quantity", quantity).subscribe()
+          if (quantity > 0) listRepo.updateItem(listId, item.id, "quantity", quantity)
         }
       })
     }
@@ -79,10 +81,19 @@ class ItemsActivity : AuthActivity() {
     fab.setOnClickListener { listRepo.addItem(listId, ShoppingItem(false, "abs", 1)) }
   }
   
+  override fun onCreateOptionsMenu(menu: Menu): Boolean {
+    menuInflater.inflate(R.menu.menu_items, menu)
+    return true
+  }
+  
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
     when (item.itemId) {
       android.R.id.home -> {
         finish()
+        return true
+      }
+      R.id.action_users -> {
+        startActivity(UsersActivity.intent(this, listId))
         return true
       }
       else -> return super.onOptionsItemSelected(item)

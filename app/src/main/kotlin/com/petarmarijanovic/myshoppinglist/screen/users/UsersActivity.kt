@@ -1,0 +1,85 @@
+package com.petarmarijanovic.myshoppinglist.screen.users
+
+import android.content.Context
+import android.content.Intent
+import android.os.Bundle
+import android.support.v7.widget.LinearLayoutManager
+import com.petarmarijanovic.myshoppinglist.R
+import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
+import com.petarmarijanovic.myshoppinglist.data.Event
+import com.petarmarijanovic.myshoppinglist.data.Identity
+import com.petarmarijanovic.myshoppinglist.data.model.User
+import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingListRepo
+import com.petarmarijanovic.myshoppinglist.screen.AuthActivity
+import com.petarmarijanovic.myshoppinglist.screen.lists.UserListener
+import com.petarmarijanovic.myshoppinglist.screen.lists.UsersAdapter
+import io.reactivex.disposables.CompositeDisposable
+import kotlinx.android.synthetic.main.screen_users.*
+import timber.log.Timber
+import javax.inject.Inject
+
+class UsersActivity : AuthActivity() {
+  
+  companion object {
+    private const val KEY_LIST_ID = "key_list_id"
+    
+    fun intent(context: Context, listId: String? = null) =
+        Intent(context, UsersActivity::class.java)
+            .apply { listId?.let { putExtra(KEY_LIST_ID, it) } }
+  }
+  
+  @Inject
+  lateinit var user: Identity<User>
+  
+  @Inject
+  lateinit var listRepo: ShoppingListRepo
+  
+  private val subscriptions = CompositeDisposable()
+  private lateinit var usersAdapter: UsersAdapter
+  private lateinit var listId: String
+  
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    (application as MyShoppingListApplication).userComponent?.inject(this)
+    setContentView(R.layout.screen_users)
+    setSupportActionBar(toolbar)
+    
+    listId = intent.getStringExtra(UsersActivity.KEY_LIST_ID)
+    
+    
+    usersAdapter = UsersAdapter().apply {
+      registerListener(object : UserListener {
+        override fun removed(user: Identity<User>) {
+          listRepo.deleteItem(listId, user.id)
+        }
+        
+      })
+    }
+    val context = this
+    recycler_view.apply {
+      adapter = usersAdapter
+      layoutManager = LinearLayoutManager(context)
+      setHasFixedSize(true)
+    }
+    
+    //    fab.setOnClickListener { listRepo.addItem(listId, ShoppingItem(false, "abs", 1)) }
+  }
+  
+  override fun onStart() {
+    super.onStart()
+    subscriptions.add(listRepo.users(listId)
+                          .subscribe({
+                                       when (it.event) {
+                                         Event.ADD -> usersAdapter.add(it.item)
+                                         Event.UPDATE -> usersAdapter.update(it.item)
+                                         Event.REMOVE -> usersAdapter.remove(it.item)
+                                       }
+                                     },
+                                     { Timber.e(it, "Error while observing users") }))
+  }
+  
+  override fun onStop() {
+    subscriptions.clear()
+    super.onStop()
+  }
+}

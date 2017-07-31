@@ -23,7 +23,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".screen.items.ItemsActivity"
             android:label="@string/title_activity_items"
@@ -32,6 +31,11 @@
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="979744753bfee0b3d8ed37aca915fec4ad6471c9" />
+
+        <activity
+            android:name=".screen.users.UsersActivity"
+            android:label="@string/title_activity_users"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

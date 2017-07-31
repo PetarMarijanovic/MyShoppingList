@@ -6,6 +6,7 @@ import com.petarmarijanovic.myshoppinglist.di.module.RepoModule
 import com.petarmarijanovic.myshoppinglist.di.scope.PerUser
 import com.petarmarijanovic.myshoppinglist.screen.items.ItemsActivity
 import com.petarmarijanovic.myshoppinglist.screen.lists.ListsActivity
+import com.petarmarijanovic.myshoppinglist.screen.users.UsersActivity
 import dagger.BindsInstance
 import dagger.Subcomponent
 
@@ -23,6 +24,8 @@ interface UserComponent {
   fun user(): Identity<User>
   
   fun inject(target: ItemsActivity)
+  
+  fun inject(target: UsersActivity)
   
   fun inject(target: ListsActivity)
   
