@@ -1,9 +1,6 @@
 package com.petarmarijanovic.myshoppinglist.data.repo
 
-import com.androidhuman.rxfirebase2.database.ChildAddEvent
-import com.androidhuman.rxfirebase2.database.ChildChangeEvent
-import com.androidhuman.rxfirebase2.database.ChildRemoveEvent
-import com.androidhuman.rxfirebase2.database.childEvents
+import com.androidhuman.rxfirebase2.database.*
 import com.google.android.gms.tasks.Task
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.FirebaseDatabase
@@ -14,6 +11,8 @@ import com.petarmarijanovic.myshoppinglist.data.model.ShoppingItem
 import com.petarmarijanovic.myshoppinglist.data.model.ShoppingList
 import com.petarmarijanovic.myshoppinglist.data.model.User
 import io.reactivex.Observable
+import org.funktionale.option.Option
+import org.funktionale.option.toOption
 
 /** Created by petar on 20/07/2017. */
 class ShoppingListRepo(val user: Identity<User>, firebaseDatabase: FirebaseDatabase) {
@@ -42,6 +41,10 @@ class ShoppingListRepo(val user: Identity<User>, firebaseDatabase: FirebaseDatab
   fun updateName(listId: String, name: String): Task<Void> =
       listsRef.child(listId).child("name").setValue(name)
   
+  fun name(listId: String): Observable<Option<String>> =
+      listsRef.child(listId).child("name").dataChanges()
+          .map { if (it.value != null) (it.value as String).toOption() else Option.None }
+  
   fun addItem(listId: String, item: ShoppingItem): Task<Void> =
       listsRef.child(listId).child(ITEMS).push().setValue(item)
   
@@ -62,7 +65,8 @@ class ShoppingListRepo(val user: Identity<User>, firebaseDatabase: FirebaseDatab
         when (it.event) {
           Event.ADD -> list(it.item)
           Event.REMOVE -> Observable.just(
-              DatabaseEvent(Event.REMOVE, Identity(it.item, ShoppingList("For Now")))) // TODO
+              DatabaseEvent(Event.REMOVE,
+                            Identity(it.item, ShoppingList("For Now")))) // TODO
           else -> throw IllegalArgumentException(it.toString() + " not supported")
         }
       }

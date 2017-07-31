@@ -13,6 +13,7 @@ import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingListRepo
 import com.petarmarijanovic.myshoppinglist.screen.AuthActivity
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.screen_items.*
+import timber.log.Timber
 import javax.inject.Inject
 
 class ItemsActivity : AuthActivity() {
@@ -89,9 +90,9 @@ class ItemsActivity : AuthActivity() {
   
   override fun onStart() {
     super.onStart()
-    //    disposables.add(listRepo.lists(listId)
-    //                        .subscribe({ name.setText(it.value.name) },
-    //                                   { Timber.e(it, "Error while observing items") }))
+    disposables.add(listRepo.name(listId)
+                        .subscribe({ if (it.isDefined()) name.setText(it.get()) },
+                                   { Timber.e(it, "Error while observing list name") }))
     
     //    disposables.add(itemRepo.lists(listId)
     //                        .subscribe({
@@ -105,7 +106,8 @@ class ItemsActivity : AuthActivity() {
   }
   
   override fun onStop() {
-    listRepo.updateName(listId, name.text.toString())
+    if (name.text.isNotBlank()) listRepo.updateName(listId, name.text.toString())
+    
     disposables.clear()
     super.onStop()
   }
