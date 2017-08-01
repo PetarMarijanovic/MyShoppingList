@@ -17,7 +17,7 @@ import android.widget.EditText
 import android.widget.TextView
 import com.petarmarijanovic.myshoppinglist.R
 import com.petarmarijanovic.myshoppinglist.data.Identity
-import com.petarmarijanovic.myshoppinglist.data.model.ShoppingItem
+import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingItem
 import timber.log.Timber
 
 /** Created by petar on 12/07/2017. */

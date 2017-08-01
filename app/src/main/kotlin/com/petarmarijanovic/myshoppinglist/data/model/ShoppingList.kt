@@ -1,6 +1,7 @@
 package com.petarmarijanovic.myshoppinglist.data.model
 
 import com.petarmarijanovic.myshoppinglist.data.Identity
+import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingItem
 import java.util.*
 
 /** Created by petar on 12/07/2017. */

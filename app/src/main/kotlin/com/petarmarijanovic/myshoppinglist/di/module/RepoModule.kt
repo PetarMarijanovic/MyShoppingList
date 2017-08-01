@@ -1,8 +1,10 @@
 package com.petarmarijanovic.myshoppinglist.di.module
 
 import com.google.firebase.database.FirebaseDatabase
+import com.petarmarijanovic.myshoppinglist.data.FirebaseReferences
 import com.petarmarijanovic.myshoppinglist.data.Identity
 import com.petarmarijanovic.myshoppinglist.data.model.User
+import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingItemRepo
 import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingListRepo
 import com.petarmarijanovic.myshoppinglist.di.scope.PerUser
 import dagger.Module
@@ -15,7 +17,16 @@ class RepoModule {
   
   @Provides
   @PerUser
+  fun firebaseReferences(user: Identity<User>, firebaseDatabase: FirebaseDatabase) =
+      FirebaseReferences(user, firebaseDatabase)
+  
+  @Provides
+  @PerUser
   fun shoppingListRepo(user: Identity<User>, firebaseDatabase: FirebaseDatabase) =
       ShoppingListRepo(user, firebaseDatabase)
+  
+  @Provides
+  @PerUser
+  fun shoppingItemRepo(references: FirebaseReferences) = ShoppingItemRepo(references)
   
 }

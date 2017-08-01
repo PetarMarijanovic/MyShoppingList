@@ -56,7 +56,7 @@ class UsersActivity : AuthActivity() {
     usersAdapter = UsersAdapter().apply {
       registerListener(object : UserListener {
         override fun removed(user: Identity<User>) {
-          listRepo.deleteItem(listId, user.id)
+          listRepo.deleteUser(listId, user.id)
         }
         
       })

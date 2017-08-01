@@ -9,7 +9,6 @@ import com.petarmarijanovic.myshoppinglist.data.Event
 import com.petarmarijanovic.myshoppinglist.data.Identity
 import com.petarmarijanovic.myshoppinglist.data.encodeAsFirebaseKey
 import com.petarmarijanovic.myshoppinglist.data.model.Invitation
-import com.petarmarijanovic.myshoppinglist.data.model.ShoppingItem
 import com.petarmarijanovic.myshoppinglist.data.model.ShoppingList
 import com.petarmarijanovic.myshoppinglist.data.model.User
 import io.reactivex.Observable
@@ -23,7 +22,6 @@ class ShoppingListRepo(private val user: Identity<User>, firebaseDatabase: Fireb
     const val LISTS = "lists"
     const val USERS = "users"
     const val INVITATIONS = "invitations"
-    const val ITEMS = "items"
   }
   
   // TODO Share observables?
@@ -104,29 +102,8 @@ class ShoppingListRepo(private val user: Identity<User>, firebaseDatabase: Fireb
     return Identity(snapshot.key, ShoppingList(name, users, items))
   }
   
-  fun addItem(listId: String, item: ShoppingItem): Task<Void> =
-      listsRef.child(listId).child(ITEMS).push().setValue(item)
-  
-  fun updateItem(listId: String, id: String, field: String, value: Any) =
-      listsRef.child(listId).child("items").updateChildren(mapOf("/$id/$field" to value))
-  
-  fun deleteItem(listId: String, id: String) =
-      listsRef.child(listId).child("items").child(id).removeValue()
-  
   fun deleteUser(listId: String, id: String) =
       listsRef.child(listId).child("users").child(id).removeValue()
-  
-  fun items(listId: String): Observable<DatabaseEvent<Identity<ShoppingItem>>> =
-      listsRef.child(listId).child("items").rxChildEvents()
-          .map({
-                 val item = Identity.fromSnapshot(it.dataSnapshot(), ShoppingItem::class.java)
-                 when (it) {
-                   is ChildAddEvent -> DatabaseEvent(Event.ADD, item)
-                   is ChildChangeEvent -> DatabaseEvent(Event.UPDATE, item)
-                   is ChildRemoveEvent -> DatabaseEvent(Event.REMOVE, item)
-                   else -> throw IllegalArgumentException(it.toString() + " not supported")
-                 }
-               })
   
   fun users(listId: String): Observable<DatabaseEvent<Identity<User>>> =
       listsRef.child(listId).child("users").rxChildEvents()

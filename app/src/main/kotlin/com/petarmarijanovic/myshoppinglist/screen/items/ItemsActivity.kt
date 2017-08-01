@@ -10,7 +10,8 @@ import com.petarmarijanovic.myshoppinglist.R
 import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
 import com.petarmarijanovic.myshoppinglist.data.Event
 import com.petarmarijanovic.myshoppinglist.data.Identity
-import com.petarmarijanovic.myshoppinglist.data.model.ShoppingItem
+import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingItem
+import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingItemRepo
 import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingListRepo
 import com.petarmarijanovic.myshoppinglist.screen.AuthActivity
 import com.petarmarijanovic.myshoppinglist.screen.users.UsersActivity
@@ -33,6 +34,9 @@ class ItemsActivity : AuthActivity() {
   @Inject
   lateinit var listRepo: ShoppingListRepo
   
+  @Inject
+  lateinit var itemRepo: ShoppingItemRepo
+  
   private lateinit var listId: String
   private lateinit var itemsAdapter: ItemsAdapter
   private val disposables = CompositeDisposable()
@@ -50,25 +54,25 @@ class ItemsActivity : AuthActivity() {
       registerItemListener(object : ItemListener {
         override fun nameFocusLost(name: String, item: Identity<ShoppingItem>) {
           if (name != item.value.name) {
-            listRepo.updateItem(listId, item.id, "name", name)
+            itemRepo.updateName(listId, item.id, name)
           }
         }
         
         override fun swiped(item: Identity<ShoppingItem>) {
-          listRepo.deleteItem(listId, item.id)
+          itemRepo.remove(listId, item.id)
         }
         
         override fun checked(isChecked: Boolean, item: Identity<ShoppingItem>) {
-          listRepo.updateItem(listId, item.id, "checked", isChecked)
+          itemRepo.updateChecked(listId, item.id, isChecked)
         }
         
         override fun plus(item: Identity<ShoppingItem>) {
-          listRepo.updateItem(listId, item.id, "quantity", item.value.quantity + 1)
+          itemRepo.updateQuantity(listId, item.id, item.value.quantity + 1)
         }
         
         override fun minus(item: Identity<ShoppingItem>) {
           val quantity = item.value.quantity - 1
-          if (quantity > 0) listRepo.updateItem(listId, item.id, "quantity", quantity)
+          if (quantity > 0) itemRepo.updateQuantity(listId, item.id, quantity)
         }
       })
     }
@@ -79,7 +83,7 @@ class ItemsActivity : AuthActivity() {
       setHasFixedSize(true)
     }
     
-    fab.setOnClickListener { listRepo.addItem(listId, ShoppingItem(false, "abs", 1)) }
+    fab.setOnClickListener { itemRepo.add(listId, ShoppingItem(false, "abs", 1)) }
   }
   
   override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -108,7 +112,7 @@ class ItemsActivity : AuthActivity() {
                         .subscribe({ if (it.isDefined()) name.setText(it.get()) },
                                    { Timber.e(it, "Error while observing list name") }))
     
-    disposables.add(listRepo.items(listId)
+    disposables.add(itemRepo.observe(listId)
                         .subscribe({
                                      when (it.event) {
                                        Event.ADD -> itemsAdapter.add(it.item)
