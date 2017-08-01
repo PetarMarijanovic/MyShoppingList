@@ -15,10 +15,14 @@
     <string name="general_cancel">Cancel</string>
     <string name="menu_lists_settings">Settings</string>
     <string name="menu_items_users">Users</string>
+    <string name="menu_lists_invitations">Invitations</string>
     <string name="title_activity_items">ItemsActivity</string>
     <string name="action_settings">Settings</string>
     <string name="item_minus">-</string>
     <string name="item_plus">+</string>
     <string name="users_button_remove">X</string>
+    <string name="button_invitation_accept">Accept</string>
+    <string name="button_invitation_decline">Decline</string>
     <string name="title_activity_users">UsersActivity</string>
+    <string name="title_activity_invitations">InvitationsActivity</string>
 </resources>

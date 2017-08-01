@@ -7,6 +7,8 @@ import com.google.firebase.database.FirebaseDatabase
 import com.petarmarijanovic.myshoppinglist.data.DatabaseEvent
 import com.petarmarijanovic.myshoppinglist.data.Event
 import com.petarmarijanovic.myshoppinglist.data.Identity
+import com.petarmarijanovic.myshoppinglist.data.encodeAsFirebaseKey
+import com.petarmarijanovic.myshoppinglist.data.model.Invitation
 import com.petarmarijanovic.myshoppinglist.data.model.ShoppingItem
 import com.petarmarijanovic.myshoppinglist.data.model.ShoppingList
 import com.petarmarijanovic.myshoppinglist.data.model.User
@@ -20,11 +22,13 @@ class ShoppingListRepo(private val user: Identity<User>, firebaseDatabase: Fireb
   companion object {
     const val LISTS = "lists"
     const val USERS = "users"
+    const val INVITATIONS = "invitations"
     const val ITEMS = "items"
   }
   
   // TODO Share observables?
   
+  private val invitationsRef = firebaseDatabase.getReference(INVITATIONS)
   private val listsRef = firebaseDatabase.getReference(LISTS)
   private val usersRef = firebaseDatabase.getReference(USERS).child(user.id).child("lists")
   
@@ -135,5 +139,25 @@ class ShoppingListRepo(private val user: Identity<User>, firebaseDatabase: Fireb
                    else -> throw IllegalArgumentException(it.toString() + " not supported")
                  }
                })
+  
+  fun invitations(): Observable<List<Identity<Invitation>>> =
+      invitationsRef.child(encodeAsFirebaseKey(user.value.email)).dataChanges()
+          .map { it.children.map { Identity.fromSnapshot(it, Invitation::class.java) } }
+  
+  fun sendInvitation(toEmail: String, invitation: Invitation) =
+      invitationsRef.child(encodeAsFirebaseKey(toEmail)).push().setValue(invitation)
+  
+  fun acceptInvitation(invitation: Identity<Invitation>) {
+    // TODO Role
+    invitationsRef.child(encodeAsFirebaseKey(user.value.email)).child(invitation.id).removeValue()
+    
+    // TODO This code is in create list also
+    listsRef.child(invitation.value.listId)
+        .child("users").child(user.id).setValue(user.value.copy(isAdmin = false))
+    usersRef.child(invitation.value.listId).setValue(true) // TODO Bezveze
+  }
+  
+  fun declineInvitation(invitation: Identity<Invitation>) {
+    invitationsRef.child(encodeAsFirebaseKey(user.value.email)).child(invitation.id).removeValue()
+  }
 }
-

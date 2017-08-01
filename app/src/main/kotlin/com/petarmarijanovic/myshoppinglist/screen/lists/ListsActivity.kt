@@ -1,5 +1,6 @@
 package com.petarmarijanovic.myshoppinglist.screen.lists
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
@@ -13,6 +14,7 @@ import com.petarmarijanovic.myshoppinglist.data.model.ShoppingList
 import com.petarmarijanovic.myshoppinglist.data.model.User
 import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingListRepo
 import com.petarmarijanovic.myshoppinglist.screen.AuthActivity
+import com.petarmarijanovic.myshoppinglist.screen.invitations.InvitationsActivity
 import com.petarmarijanovic.myshoppinglist.screen.items.ItemsActivity
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.screen_lists.*
@@ -88,6 +90,10 @@ class ListsActivity : AuthActivity() {
     when (item.itemId) {
       R.id.action_settings -> {
         FirebaseAuth.getInstance().signOut()
+        return true
+      }
+      R.id.action_invitations -> {
+        startActivity(Intent(this, InvitationsActivity::class.java))
         return true
       }
       else -> return super.onOptionsItemSelected(item)

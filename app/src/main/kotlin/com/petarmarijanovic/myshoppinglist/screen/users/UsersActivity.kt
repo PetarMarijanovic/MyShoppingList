@@ -8,6 +8,7 @@ import com.petarmarijanovic.myshoppinglist.R
 import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
 import com.petarmarijanovic.myshoppinglist.data.Event
 import com.petarmarijanovic.myshoppinglist.data.Identity
+import com.petarmarijanovic.myshoppinglist.data.model.Invitation
 import com.petarmarijanovic.myshoppinglist.data.model.User
 import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingListRepo
 import com.petarmarijanovic.myshoppinglist.screen.AuthActivity
@@ -22,10 +23,14 @@ class UsersActivity : AuthActivity() {
   
   companion object {
     private const val KEY_LIST_ID = "key_list_id"
+    private const val KEY_LIST_NAME = "key_list_name"
     
-    fun intent(context: Context, listId: String? = null) =
+    fun intent(context: Context, listId: String, listName: String) =
         Intent(context, UsersActivity::class.java)
-            .apply { listId?.let { putExtra(KEY_LIST_ID, it) } }
+            .apply {
+              putExtra(KEY_LIST_ID, listId)
+              putExtra(KEY_LIST_NAME, listName)
+            }
   }
   
   @Inject
@@ -37,6 +42,7 @@ class UsersActivity : AuthActivity() {
   private val subscriptions = CompositeDisposable()
   private lateinit var usersAdapter: UsersAdapter
   private lateinit var listId: String
+  private lateinit var listName: String
   
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -45,7 +51,7 @@ class UsersActivity : AuthActivity() {
     setSupportActionBar(toolbar)
     
     listId = intent.getStringExtra(UsersActivity.KEY_LIST_ID)
-    
+    listName = intent.getStringExtra(UsersActivity.KEY_LIST_NAME)
     
     usersAdapter = UsersAdapter().apply {
       registerListener(object : UserListener {
@@ -62,7 +68,10 @@ class UsersActivity : AuthActivity() {
       setHasFixedSize(true)
     }
     
-    //    fab.setOnClickListener { listRepo.addItem(listId, ShoppingItem(false, "abs", 1)) }
+    fab.setOnClickListener {
+      listRepo.sendInvitation("petar2@test.com",
+                              Invitation(user.value.email, listId, listName))
+    }
   }
   
   override fun onStart() {

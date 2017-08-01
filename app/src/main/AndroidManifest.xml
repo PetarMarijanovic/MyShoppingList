@@ -35,7 +35,12 @@
         <activity
             android:name=".screen.users.UsersActivity"
             android:label="@string/title_activity_users"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity
+            android:name=".screen.invitations.InvitationsActivity"
+            android:label="@string/title_activity_invitations"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

@@ -19,6 +19,7 @@ import kotlinx.android.synthetic.main.screen_items.*
 import timber.log.Timber
 import javax.inject.Inject
 
+// TODO Dont Allow NoName Lists
 class ItemsActivity : AuthActivity() {
   
   companion object {
@@ -93,7 +94,7 @@ class ItemsActivity : AuthActivity() {
         return true
       }
       R.id.action_users -> {
-        startActivity(UsersActivity.intent(this, listId))
+        startActivity(UsersActivity.intent(this, listId, name.text.toString()))
         return true
       }
       else -> return super.onOptionsItemSelected(item)

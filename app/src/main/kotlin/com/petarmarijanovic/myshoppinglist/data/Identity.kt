@@ -7,8 +7,26 @@ data class Identity<T>(var id: String, var value: T) {
   
   companion object {
     fun <T> fromSnapshot(snapshot: DataSnapshot, clazz: Class<T>): Identity<T> {
-      return Identity(snapshot.ref.key, snapshot.getValue(clazz)!!)
+      return Identity(decodeFromFirebaseKey(snapshot.ref.key), snapshot.getValue(clazz)!!)
     }
   }
   
 }
+
+fun encodeAsFirebaseKey(key: String) =
+    key.replace("%", "%25")
+        .replace(".", "%2E")
+        .replace("#", "%23")
+        .replace("$", "%24")
+        .replace("/", "%2F")
+        .replace("[", "%5B")
+        .replace("]", "%5D")
+
+fun decodeFromFirebaseKey(key: String) =
+    key.replace("%25", "%")
+        .replace("%2E", ".")
+        .replace("%23", "#")
+        .replace("%24", "$")
+        .replace("%2F", "/")
+        .replace("%5B", "[")
+        .replace("%5D", "]")

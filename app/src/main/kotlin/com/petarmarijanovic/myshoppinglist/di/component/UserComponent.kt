@@ -4,6 +4,7 @@ import com.petarmarijanovic.myshoppinglist.data.Identity
 import com.petarmarijanovic.myshoppinglist.data.model.User
 import com.petarmarijanovic.myshoppinglist.di.module.RepoModule
 import com.petarmarijanovic.myshoppinglist.di.scope.PerUser
+import com.petarmarijanovic.myshoppinglist.screen.invitations.InvitationsActivity
 import com.petarmarijanovic.myshoppinglist.screen.items.ItemsActivity
 import com.petarmarijanovic.myshoppinglist.screen.lists.ListsActivity
 import com.petarmarijanovic.myshoppinglist.screen.users.UsersActivity
@@ -26,6 +27,8 @@ interface UserComponent {
   fun inject(target: ItemsActivity)
   
   fun inject(target: UsersActivity)
+  
+  fun inject(target: InvitationsActivity)
   
   fun inject(target: ListsActivity)
   

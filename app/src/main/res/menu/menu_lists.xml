@@ -4,6 +4,12 @@
     <item
         android:id="@+id/action_settings"
         android:icon="@drawable/ic_settings"
-        android:title="@string/menu_items_users"
+        android:title="@string/menu_lists_settings"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_invitations"
+        android:icon="@drawable/ic_settings"
+        android:title="@string/menu_lists_invitations"
         app:showAsAction="ifRoom" />
 </menu>
