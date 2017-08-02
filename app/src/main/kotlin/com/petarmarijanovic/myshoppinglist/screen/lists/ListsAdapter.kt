@@ -11,7 +11,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.petarmarijanovic.myshoppinglist.R
 import com.petarmarijanovic.myshoppinglist.data.Identity
-import com.petarmarijanovic.myshoppinglist.data.model.ShoppingList
+import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingList
 import com.petarmarijanovic.myshoppinglist.screen.items.dpToPx
 import timber.log.Timber
 import java.util.*

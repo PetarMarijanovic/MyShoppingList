@@ -2,139 +2,89 @@ package com.petarmarijanovic.myshoppinglist.data.repo
 
 import com.androidhuman.rxfirebase2.database.*
 import com.google.android.gms.tasks.Task
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.FirebaseDatabase
 import com.petarmarijanovic.myshoppinglist.data.DatabaseEvent
-import com.petarmarijanovic.myshoppinglist.data.Event
+import com.petarmarijanovic.myshoppinglist.data.Event.ADD
+import com.petarmarijanovic.myshoppinglist.data.Event.REMOVE
+import com.petarmarijanovic.myshoppinglist.data.FirebaseReferences
 import com.petarmarijanovic.myshoppinglist.data.Identity
-import com.petarmarijanovic.myshoppinglist.data.encodeAsFirebaseKey
-import com.petarmarijanovic.myshoppinglist.data.model.Invitation
-import com.petarmarijanovic.myshoppinglist.data.model.ShoppingList
-import com.petarmarijanovic.myshoppinglist.data.model.User
+import com.petarmarijanovic.myshoppinglist.decodeFromFirebaseKey
+import com.petarmarijanovic.myshoppinglist.encodeAsFirebaseKey
 import io.reactivex.Observable
-import org.funktionale.option.Option
-import org.funktionale.option.toOption
+import io.reactivex.functions.Function3
+import java.util.*
 
 /** Created by petar on 20/07/2017. */
-class ShoppingListRepo(private val user: Identity<User>, firebaseDatabase: FirebaseDatabase) {
+data class ShoppingList(val name: String,
+                        val users: List<String>,
+                        val items: List<Identity<ShoppingItem>>)
+
+class ShoppingListRepo(private val email: String,
+                       references: FirebaseReferences,
+                       private val itemsRepo: ShoppingItemRepo) {
   
-  companion object {
-    const val LISTS = "lists"
-    const val USERS = "users"
-    const val INVITATIONS = "invitations"
-  }
+  private val listsRef = references.lists
+  private val listsPerUserRef = references.listsPerUser
+  private val usersPerListRef = references.usersPerList
   
-  // TODO Share observables?
+  fun add(name: String): String =
+      listsRef.push().let {
+        it.setValue(name)
+        it.key.apply {
+          // TODO Transaction or Firebase Rule
+          usersPerListRef.child(this).child(email.encodeAsFirebaseKey()).setValue(true) // TODO Bezveze
+          listsPerUserRef.child(this).setValue(true) // TODO Bezveze
+        }
+      }
   
-  private val invitationsRef = firebaseDatabase.getReference(INVITATIONS)
-  private val listsRef = firebaseDatabase.getReference(LISTS)
-  private val usersRef = firebaseDatabase.getReference(USERS).child(user.id).child("lists")
+  fun updateName(listId: String, name: String): Task<Void> = listsRef.child(listId).setValue(name)
   
-  fun newList(): String {
-    val pushRef = listsRef.push()
-    val listId = pushRef.key
-    
-    pushRef.child("users").child(user.id).setValue(user.value.copy(isAdmin = true))
-    usersRef.child(listId).setValue(true) // TODO Bezveze
-    
-    return listId
-  }
+  fun observeName(listId: String): Observable<String> =
+      listsRef.child(listId).dataChanges().map { it.value as String }
   
-  fun updateName(listId: String, name: String): Task<Void> =
-      listsRef.child(listId).child("name").setValue(name)
-  
-  fun name(listId: String): Observable<Option<String>> =
-      listsRef.child(listId).child("name").dataChanges()
-          .map { if (it.value != null) (it.value as String).toOption() else Option.None }
-  
-  fun list(id: String): Observable<DatabaseEvent<Identity<ShoppingList>>> =
-      listsRef.childEvents().filter { it.dataSnapshot().key == id }
-          .map {
-            val item = toShoppingList(it.dataSnapshot())
-            when (it) {
-              is ChildAddEvent -> DatabaseEvent(Event.ADD, item)
-              is ChildChangeEvent -> DatabaseEvent(Event.UPDATE, item)
-              is ChildRemoveEvent -> DatabaseEvent(Event.REMOVE, item)
-              else -> throw IllegalArgumentException(it.toString() + " not supported")
-            }
-          }
-  
-  fun lists(): Observable<DatabaseEvent<Identity<ShoppingList>>> =
+  fun observeLists(): Observable<DatabaseEvent<Identity<ShoppingList>>> =
       userListIds().flatMap {
+        val listId = it.item
         when (it.event) {
-          Event.ADD -> list(it.item)
-          Event.REMOVE -> Observable.just(
-              DatabaseEvent(Event.REMOVE,
-                            Identity(it.item, ShoppingList("For Now")))) // TODO
+          ADD -> shoppingList(listId).map { DatabaseEvent(ADD, it) }
+          REMOVE -> Observable.just(DatabaseEvent(REMOVE, Identity(listId, emptyList())))
           else -> throw IllegalArgumentException(it.toString() + " not supported")
         }
       }
   
-  private fun userListIds() = usersRef.childEvents()
+  @Deprecated("This is here because in current implementation I need to add some object to DatabaseEvent for REMOVE",
+              ReplaceWith("Nothing. Change implementation and then delete this method"))
+  private fun emptyList() = ShoppingList("", Collections.emptyList(), Collections.emptyList())
+  
+  fun usersPerList(listId: String): Observable<List<String>> =
+      usersPerListRef.child(listId).dataChanges().map { it.children.map { it.key.decodeFromFirebaseKey() } }
+  
+  fun usersPerListDataChanges(listId: String): Observable<DatabaseEvent<String>> =
+      usersPerListRef.child(listId).rxChildEvents().map {
+        val email = it.dataSnapshot().key.decodeFromFirebaseKey()
+        when (it) {
+          is ChildAddEvent -> DatabaseEvent(ADD, email)
+          is ChildRemoveEvent -> DatabaseEvent(REMOVE, email)
+          else -> throw IllegalArgumentException(it.toString() + " not supported")
+        }
+      }
+  
+  // TODO Write this without the ugly Function3
+  private fun shoppingList(listId: String): Observable<Identity<ShoppingList>> =
+      Observable.combineLatest(observeName(listId),
+                               usersPerList(listId),
+                               itemsRepo.dataChanges(listId),
+                               Function3<String, List<String>, List<Identity<ShoppingItem>>, ShoppingList> { t1, t2, t3 ->
+                                 ShoppingList(t1, t2, t3)
+                               })
+          .map { Identity(listId, it) }
+  
+  private fun userListIds() = listsPerUserRef.childEvents()
       .map {
         val listId = it.dataSnapshot().key
         when (it) {
-          is ChildAddEvent -> DatabaseEvent<String>(Event.ADD, listId)
-          is ChildRemoveEvent -> DatabaseEvent<String>(Event.REMOVE, listId)
+          is ChildAddEvent -> DatabaseEvent<String>(ADD, listId)
+          is ChildRemoveEvent -> DatabaseEvent<String>(REMOVE, listId)
           else -> throw IllegalArgumentException(it.toString() + " not supported")
         }
       }
-  
-  fun deleteList(list: Identity<ShoppingList>) {
-    // TODO Make this better with firebase functions
-    // https://firebase.google.com/docs/functions/get-started
-    usersRef.child(list.id).removeValue()
-    if (list.value.users.size == 1) listsRef.child(list.id).removeValue()
-    else listsRef.child(list.id).child("users").child(user.id).removeValue()
-  }
-  
-  private fun toShoppingList(snapshot: DataSnapshot): Identity<ShoppingList> {
-    val name = snapshot.child("name").value?.let { it as String } ?: ""
-    
-    val users = snapshot.child("users").children.map {
-      Identity.fromSnapshot(it, User::class.java)
-    }
-    
-    val items = snapshot.child("items").children.map {
-      Identity.fromSnapshot(it, ShoppingItem::class.java)
-    }
-    
-    return Identity(snapshot.key, ShoppingList(name, users, items))
-  }
-  
-  fun deleteUser(listId: String, id: String) =
-      listsRef.child(listId).child("users").child(id).removeValue()
-  
-  fun users(listId: String): Observable<DatabaseEvent<Identity<User>>> =
-      listsRef.child(listId).child("users").rxChildEvents()
-          .map({
-                 val item = Identity.fromSnapshot(it.dataSnapshot(), User::class.java)
-                 when (it) {
-                   is ChildAddEvent -> DatabaseEvent(Event.ADD, item)
-                   is ChildChangeEvent -> DatabaseEvent(Event.UPDATE, item)
-                   is ChildRemoveEvent -> DatabaseEvent(Event.REMOVE, item)
-                   else -> throw IllegalArgumentException(it.toString() + " not supported")
-                 }
-               })
-  
-  fun invitations(): Observable<List<Identity<Invitation>>> =
-      invitationsRef.child(encodeAsFirebaseKey(user.value.email)).dataChanges()
-          .map { it.children.map { Identity.fromSnapshot(it, Invitation::class.java) } }
-  
-  fun sendInvitation(toEmail: String, invitation: Invitation) =
-      invitationsRef.child(encodeAsFirebaseKey(toEmail)).push().setValue(invitation)
-  
-  fun acceptInvitation(invitation: Identity<Invitation>) {
-    // TODO Role
-    invitationsRef.child(encodeAsFirebaseKey(user.value.email)).child(invitation.id).removeValue()
-    
-    // TODO This code is in create list also
-    listsRef.child(invitation.value.listId)
-        .child("users").child(user.id).setValue(user.value.copy(isAdmin = false))
-    usersRef.child(invitation.value.listId).setValue(true) // TODO Bezveze
-  }
-  
-  fun declineInvitation(invitation: Identity<Invitation>) {
-    invitationsRef.child(encodeAsFirebaseKey(user.value.email)).child(invitation.id).removeValue()
-  }
 }

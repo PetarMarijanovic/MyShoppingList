@@ -7,9 +7,6 @@ import android.support.v7.widget.LinearLayoutManager
 import com.petarmarijanovic.myshoppinglist.R
 import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
 import com.petarmarijanovic.myshoppinglist.data.Event
-import com.petarmarijanovic.myshoppinglist.data.Identity
-import com.petarmarijanovic.myshoppinglist.data.model.Invitation
-import com.petarmarijanovic.myshoppinglist.data.model.User
 import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingListRepo
 import com.petarmarijanovic.myshoppinglist.screen.AuthActivity
 import com.petarmarijanovic.myshoppinglist.screen.lists.UserListener
@@ -34,9 +31,6 @@ class UsersActivity : AuthActivity() {
   }
   
   @Inject
-  lateinit var user: Identity<User>
-  
-  @Inject
   lateinit var listRepo: ShoppingListRepo
   
   private val subscriptions = CompositeDisposable()
@@ -55,8 +49,8 @@ class UsersActivity : AuthActivity() {
     
     usersAdapter = UsersAdapter().apply {
       registerListener(object : UserListener {
-        override fun removed(user: Identity<User>) {
-          listRepo.deleteUser(listId, user.id)
+        override fun removed(email: String) {
+          //          listRepo.deleteUser(listId, user.id)
         }
         
       })
@@ -69,14 +63,14 @@ class UsersActivity : AuthActivity() {
     }
     
     fab.setOnClickListener {
-      listRepo.sendInvitation("petar2@test.com",
-                              Invitation(user.value.email, listId, listName))
+      //      listRepo.sendInvitation("petar2@test.com",
+      //                              Invitation(user.value.email, listId, listName))
     }
   }
   
   override fun onStart() {
     super.onStart()
-    subscriptions.add(listRepo.users(listId)
+    subscriptions.add(listRepo.usersPerListDataChanges(listId)
                           .subscribe({
                                        when (it.event) {
                                          Event.ADD -> usersAdapter.add(it.item)

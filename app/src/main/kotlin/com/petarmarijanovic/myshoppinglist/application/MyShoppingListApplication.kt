@@ -2,8 +2,6 @@ package com.petarmarijanovic.myshoppinglist.application
 
 import android.app.Application
 import com.petarmarijanovic.myshoppinglist.application.config.ApplicationConfig
-import com.petarmarijanovic.myshoppinglist.data.Identity
-import com.petarmarijanovic.myshoppinglist.data.model.User
 import com.petarmarijanovic.myshoppinglist.di.component.AppComponent
 import com.petarmarijanovic.myshoppinglist.di.component.DaggerAppComponent
 import com.petarmarijanovic.myshoppinglist.di.component.UserComponent
@@ -31,8 +29,8 @@ class MyShoppingListApplication : Application() {
   }
   
   /** https://github.com/PetarMarijanovic/MyShoppingList/issues/2 */
-  fun createUserComponent(user: Identity<User>) {
-    userComponent = appComponent.plusUserComponent().user(user).build()
+  fun createUserComponent(email: String) {
+    userComponent = appComponent.plusUserComponent().email(email).build()
   }
   
   /** https://github.com/PetarMarijanovic/MyShoppingList/issues/2 */

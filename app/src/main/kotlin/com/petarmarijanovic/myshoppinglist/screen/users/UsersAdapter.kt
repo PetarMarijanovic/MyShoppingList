@@ -8,26 +8,23 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.petarmarijanovic.myshoppinglist.R
-import com.petarmarijanovic.myshoppinglist.data.Identity
-import com.petarmarijanovic.myshoppinglist.data.model.User
 import com.petarmarijanovic.myshoppinglist.screen.items.dpToPx
 import java.util.*
 
 /** Created by petar on 12/07/2017. */
 class UsersAdapter : RecyclerView.Adapter<UsersAdapter.ViewHolder>() {
   
-  private var items: MutableList<Identity<User>> = ArrayList()
+  private var emails: MutableList<String> = ArrayList()
   private var userListener: UserListener? = null
   
   override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int) =
       ViewHolder(LayoutInflater.from(parent?.context).inflate(R.layout.list_user, parent, false))
   
   override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
-    val list = items[position].value
-    holder?.email(list.email)
+    emails[position].let { holder?.email(it) }
   }
   
-  override fun getItemCount() = items.size
+  override fun getItemCount() = emails.size
   
   override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
     attachItemDecorator(recyclerView)
@@ -62,27 +59,27 @@ class UsersAdapter : RecyclerView.Adapter<UsersAdapter.ViewHolder>() {
   }
   
   fun clear() {
-    val size = items.size
-    items.clear()
+    val size = emails.size
+    emails.clear()
     notifyItemRangeRemoved(0, size)
   }
   
-  fun add(item: Identity<User>) {
-    items.add(item)
-    notifyItemInserted(items.size - 1)
+  fun add(email: String) {
+    emails.add(email)
+    notifyItemInserted(emails.size - 1)
   }
   
-  fun update(item: Identity<User>) =
-      items.filter { it.id == item.id }.firstOrNull()?.let {
-        val index = items.indexOf(it)
-        items[index] = item
+  fun update(email: String) =
+      emails.filter { it == email }.firstOrNull()?.let {
+        val index = emails.indexOf(it)
+        emails[index] = email
         notifyItemChanged(index)
       }
   
-  fun remove(item: Identity<User>) =
-      items.filter { it.id == item.id }.firstOrNull()?.let {
-        val index = items.indexOf(it)
-        items.removeAt(index)
+  fun remove(email: String) =
+      emails.filter { it == email }.firstOrNull()?.let {
+        val index = emails.indexOf(it)
+        emails.removeAt(index)
         notifyItemRemoved(index)
       }
   
@@ -110,6 +107,6 @@ class UsersAdapter : RecyclerView.Adapter<UsersAdapter.ViewHolder>() {
 
 interface UserListener {
   
-  fun removed(user: Identity<User>)
+  fun removed(email: String)
   
 }

@@ -6,20 +6,13 @@ import com.petarmarijanovic.myshoppinglist.R
 import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
 import com.petarmarijanovic.myshoppinglist.data.Identity
 import com.petarmarijanovic.myshoppinglist.data.model.Invitation
-import com.petarmarijanovic.myshoppinglist.data.model.User
 import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingListRepo
 import com.petarmarijanovic.myshoppinglist.screen.AuthActivity
-import com.petarmarijanovic.myshoppinglist.screen.lists.InvitationListener
-import com.petarmarijanovic.myshoppinglist.screen.lists.InvitationsAdapter
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.screen_users.*
-import timber.log.Timber
 import javax.inject.Inject
 
 class InvitationsActivity : AuthActivity() {
-  
-  @Inject
-  lateinit var user: Identity<User>
   
   @Inject
   lateinit var listRepo: ShoppingListRepo
@@ -36,11 +29,11 @@ class InvitationsActivity : AuthActivity() {
     invitationsAdapter = InvitationsAdapter().apply {
       registerListener(object : InvitationListener {
         override fun accept(invitation: Identity<Invitation>) {
-          listRepo.acceptInvitation(invitation)
+          //          listRepo.acceptInvitation(invitation)
         }
         
         override fun decline(invitation: Identity<Invitation>) {
-          listRepo.declineInvitation(invitation)
+          //          listRepo.declineInvitation(invitation)
         }
         
       })
@@ -55,9 +48,9 @@ class InvitationsActivity : AuthActivity() {
   
   override fun onStart() {
     super.onStart()
-    subscriptions.add(listRepo.invitations()
-                          .subscribe({ invitationsAdapter.add(it) },
-                                     { Timber.e(it, "Error while observing invitations") }))
+    //    subscriptions.add(listRepo.invitations()
+    //                          .subscribe({ invitationsAdapter.add(it) },
+    //                                     { Timber.e(it, "Error while observing invitations") }))
   }
   
   override fun onStop() {

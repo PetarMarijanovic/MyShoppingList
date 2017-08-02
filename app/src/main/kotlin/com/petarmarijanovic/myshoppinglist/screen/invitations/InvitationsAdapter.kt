@@ -1,4 +1,4 @@
-package com.petarmarijanovic.myshoppinglist.screen.lists
+package com.petarmarijanovic.myshoppinglist.screen.invitations
 
 import android.graphics.Rect
 import android.support.v7.widget.DefaultItemAnimator
@@ -10,7 +10,6 @@ import android.widget.TextView
 import com.petarmarijanovic.myshoppinglist.R
 import com.petarmarijanovic.myshoppinglist.data.Identity
 import com.petarmarijanovic.myshoppinglist.data.model.Invitation
-import com.petarmarijanovic.myshoppinglist.data.model.User
 import com.petarmarijanovic.myshoppinglist.screen.items.dpToPx
 import kotlinx.android.synthetic.main.list_invitation.view.*
 import java.util.*
@@ -75,13 +74,6 @@ class InvitationsAdapter : RecyclerView.Adapter<InvitationsAdapter.ViewHolder>()
     this.items.addAll(items)
     notifyDataSetChanged()
   }
-  
-  fun remove(item: Identity<User>) =
-      items.filter { it.id == item.id }.firstOrNull()?.let {
-        val index = items.indexOf(it)
-        items.removeAt(index)
-        notifyItemRemoved(index)
-      }
   
   fun registerListener(listener: InvitationListener) {
     this.invitationListener = listener

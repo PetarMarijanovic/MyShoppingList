@@ -10,8 +10,7 @@ import com.petarmarijanovic.myshoppinglist.R
 import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
 import com.petarmarijanovic.myshoppinglist.data.Event
 import com.petarmarijanovic.myshoppinglist.data.Identity
-import com.petarmarijanovic.myshoppinglist.data.model.ShoppingList
-import com.petarmarijanovic.myshoppinglist.data.model.User
+import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingList
 import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingListRepo
 import com.petarmarijanovic.myshoppinglist.screen.AuthActivity
 import com.petarmarijanovic.myshoppinglist.screen.invitations.InvitationsActivity
@@ -22,9 +21,6 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class ListsActivity : AuthActivity() {
-  
-  @Inject
-  lateinit var user: Identity<User>
   
   @Inject
   lateinit var listRepo: ShoppingListRepo
@@ -46,7 +42,7 @@ class ListsActivity : AuthActivity() {
         }
         
         override fun swiped(list: Identity<ShoppingList>) {
-          listRepo.deleteList(list)
+          //          listRepo.deleteList(list)
         }
       })
     }
@@ -58,14 +54,15 @@ class ListsActivity : AuthActivity() {
     }
     
     fab.setOnClickListener {
-      startActivity(ItemsActivity.intent(context, listRepo.newList()))
+      startActivity(ItemsActivity.intent(context, listRepo.add("New List")))
     }
   }
   
   override fun onStart() {
     super.onStart()
     listsAdapter.clear()
-    disposables.add(listRepo.lists()
+    // TODO THIS IS NOT GOOOOOOODDDDD!!!!!!! WHAT ABOUT UPDATE
+    disposables.add(listRepo.observeLists()
                         .subscribe({
                                      when (it.event) {
                                        Event.ADD -> listsAdapter.add(it.item)

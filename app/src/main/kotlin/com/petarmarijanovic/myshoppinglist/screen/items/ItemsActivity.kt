@@ -108,11 +108,11 @@ class ItemsActivity : AuthActivity() {
   override fun onStart() {
     super.onStart()
     itemsAdapter.clear()
-    disposables.add(listRepo.name(listId)
-                        .subscribe({ if (it.isDefined()) name.setText(it.get()) },
+    disposables.add(listRepo.observeName(listId)
+                        .subscribe({ name.setText(it) },
                                    { Timber.e(it, "Error while observing list name") }))
     
-    disposables.add(itemRepo.observe(listId)
+    disposables.add(itemRepo.events(listId)
                         .subscribe({
                                      when (it.event) {
                                        Event.ADD -> itemsAdapter.add(it.item)

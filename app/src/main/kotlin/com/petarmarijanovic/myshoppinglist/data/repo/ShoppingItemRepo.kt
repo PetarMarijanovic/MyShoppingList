@@ -1,9 +1,6 @@
 package com.petarmarijanovic.myshoppinglist.data.repo
 
-import com.androidhuman.rxfirebase2.database.ChildAddEvent
-import com.androidhuman.rxfirebase2.database.ChildChangeEvent
-import com.androidhuman.rxfirebase2.database.ChildRemoveEvent
-import com.androidhuman.rxfirebase2.database.rxChildEvents
+import com.androidhuman.rxfirebase2.database.*
 import com.google.android.gms.tasks.Task
 import com.petarmarijanovic.myshoppinglist.data.DatabaseEvent
 import com.petarmarijanovic.myshoppinglist.data.Event
@@ -32,7 +29,7 @@ class ShoppingItemRepo(private val references: FirebaseReferences) {
   fun remove(listId: String, id: String): Task<Void> =
       references.items(listId).child(id).removeValue()
   
-  fun observe(listId: String): Observable<DatabaseEvent<Identity<ShoppingItem>>> =
+  fun events(listId: String): Observable<DatabaseEvent<Identity<ShoppingItem>>> =
       references.items(listId).rxChildEvents()
           .map({
                  val item = Identity.fromSnapshot(it.dataSnapshot(), ShoppingItem::class.java)
@@ -43,6 +40,10 @@ class ShoppingItemRepo(private val references: FirebaseReferences) {
                    else -> throw IllegalArgumentException("$it is not supported")
                  }
                })
+  
+  fun dataChanges(listId: String): Observable<List<Identity<ShoppingItem>>> =
+      references.items(listId).dataChanges()
+          .map({ it.children.map { Identity.fromSnapshot(it, ShoppingItem::class.java) } })
   
   private fun update(listId: String, id: String, field: String, value: Any): Task<Void> =
       references.items(listId).updateChildren(mapOf("/$id/$field" to value))
