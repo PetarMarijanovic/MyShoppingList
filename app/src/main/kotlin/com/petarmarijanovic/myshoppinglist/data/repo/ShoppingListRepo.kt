@@ -11,6 +11,7 @@ import com.petarmarijanovic.myshoppinglist.decodeFromFirebaseKey
 import com.petarmarijanovic.myshoppinglist.encodeAsFirebaseKey
 import io.reactivex.Observable
 import io.reactivex.functions.Function3
+import timber.log.Timber
 import java.util.*
 
 /** Created by petar on 20/07/2017. */
@@ -19,36 +20,44 @@ data class ShoppingList(val name: String,
                         val items: List<Identity<ShoppingItem>>)
 
 class ShoppingListRepo(private val email: String,
-                       references: FirebaseReferences,
+                       private val references: FirebaseReferences,
                        private val itemsRepo: ShoppingItemRepo) {
   
   private val listsRef = references.lists
   private val listsPerUserRef = references.listsPerUser
   private val usersPerListRef = references.usersPerList
   
+  // TODO Transaction or Firebase Rule
   fun add(name: String): String =
       listsRef.push().let {
         it.setValue(name)
         it.key.apply {
-          // TODO Transaction or Firebase Rule
           usersPerListRef.child(this).child(email.encodeAsFirebaseKey()).setValue(true) // TODO Bezveze
           listsPerUserRef.child(this).setValue(true) // TODO Bezveze
         }
       }
+  
+  // TODO Transaction or Firebase Rule
+  fun remove(listId: String) {
+    usersPerListRef.child(listId).child(email.encodeAsFirebaseKey()).removeValue() // TODO Bezveze
+    listsPerUserRef.child(listId).removeValue() // TODO Bezveze
+    usersPerListRef.child(listId).data().filter { !it.exists() }
+        .subscribe({
+                     references.items(listId).removeValue()
+                     listsRef.child(listId).removeValue()
+                   },
+                   { Timber.e(it, "Error while removing list and items of that list") })
+  }
   
   fun updateName(listId: String, name: String): Task<Void> = listsRef.child(listId).setValue(name)
   
   fun observeName(listId: String): Observable<String> =
       listsRef.child(listId).dataChanges().map { it.value as String }
   
-  fun observeLists(): Observable<DatabaseEvent<Identity<ShoppingList>>> =
-      userListIds().flatMap {
-        val listId = it.item
-        when (it.event) {
-          ADD -> shoppingList(listId).map { DatabaseEvent(ADD, it) }
-          REMOVE -> Observable.just(DatabaseEvent(REMOVE, Identity(listId, emptyList())))
-          else -> throw IllegalArgumentException(it.toString() + " not supported")
-        }
+  fun observeLists(): Observable<List<Identity<ShoppingList>>> =
+      userListIds().switchMap {
+        Observable.combineLatest(it.map { shoppingList(it) },
+                                 { it.map { it as Identity<ShoppingList> } })
       }
   
   @Deprecated("This is here because in current implementation I need to add some object to DatabaseEvent for REMOVE",
@@ -78,13 +87,5 @@ class ShoppingListRepo(private val email: String,
                                })
           .map { Identity(listId, it) }
   
-  private fun userListIds() = listsPerUserRef.childEvents()
-      .map {
-        val listId = it.dataSnapshot().key
-        when (it) {
-          is ChildAddEvent -> DatabaseEvent<String>(ADD, listId)
-          is ChildRemoveEvent -> DatabaseEvent<String>(REMOVE, listId)
-          else -> throw IllegalArgumentException(it.toString() + " not supported")
-        }
-      }
+  private fun userListIds() = listsPerUserRef.dataChanges().map { it.children.map { it.key } }
 }

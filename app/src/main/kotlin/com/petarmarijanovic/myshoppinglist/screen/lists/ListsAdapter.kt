@@ -107,24 +107,11 @@ class ListsAdapter : RecyclerView.Adapter<ListsAdapter.ViewHolder>() {
     notifyItemRangeRemoved(0, size)
   }
   
-  fun add(item: Identity<ShoppingList>) {
-    items.add(item)
-    notifyItemInserted(items.size - 1)
+  fun addAll(items: List<Identity<ShoppingList>>) {
+    this.items.clear()
+    this.items.addAll(items)
+    notifyDataSetChanged()
   }
-  
-  fun update(item: Identity<ShoppingList>) =
-      items.filter { it.id == item.id }.firstOrNull()?.let {
-        val index = items.indexOf(it)
-        items[index] = item
-        notifyItemChanged(index)
-      }
-  
-  fun remove(item: Identity<ShoppingList>) =
-      items.filter { it.id == item.id }.firstOrNull()?.let {
-        val index = items.indexOf(it)
-        items.removeAt(index)
-        notifyItemRemoved(index)
-      }
   
   fun registerClickListener(listListener: ListListener) {
     this.listListener = listListener
