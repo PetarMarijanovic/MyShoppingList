@@ -10,8 +10,8 @@ import com.petarmarijanovic.myshoppinglist.data.DatabaseEvent
 import com.petarmarijanovic.myshoppinglist.data.Event.*
 import com.petarmarijanovic.myshoppinglist.data.FirebaseReferences
 import com.petarmarijanovic.myshoppinglist.data.Identity
-import com.petarmarijanovic.myshoppinglist.decodeFromFirebaseKey
-import com.petarmarijanovic.myshoppinglist.encodeAsFirebaseKey
+import com.petarmarijanovic.myshoppinglist.extensions.decodeFromFirebaseKey
+import com.petarmarijanovic.myshoppinglist.extensions.encodeAsFirebaseKey
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Function3

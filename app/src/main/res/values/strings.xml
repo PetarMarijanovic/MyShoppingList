@@ -25,4 +25,5 @@
     <string name="button_invitation_decline">Decline</string>
     <string name="title_activity_users">UsersActivity</string>
     <string name="title_activity_invitations">InvitationsActivity</string>
+    <string name="new_list">New List</string>
 </resources>

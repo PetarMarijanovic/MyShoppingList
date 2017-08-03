@@ -26,26 +26,24 @@ class ListsActivity : AuthActivity() {
   lateinit var listRepo: ShoppingListRepo
   
   private val disposables = CompositeDisposable()
-  private lateinit var listsAdapter: ListsAdapter
+  
+  private val listsAdapter = ListsAdapter().apply {
+    registerClickListener(object : ListsListener {
+      override fun onClick(list: Identity<ShoppingList>) {
+        startActivity(ItemsActivity.intent(this@ListsActivity, list.id))
+      }
+      
+      override fun onSwipe(list: Identity<ShoppingList>) {
+        listRepo.remove(list.id, list.value.users.size == 1)
+      }
+    })
+  }
   
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     (application as MyShoppingListApplication).userComponent?.inject(this)
     setContentView(R.layout.screen_lists)
     setSupportActionBar(toolbar)
-    
-    val context = this
-    listsAdapter = ListsAdapter().apply {
-      registerClickListener(object : ListListener {
-        override fun click(list: Identity<ShoppingList>) {
-          startActivity(ItemsActivity.intent(context, list.id))
-        }
-        
-        override fun swiped(list: Identity<ShoppingList>) {
-          listRepo.remove(list.id, list.value.users.size == 1)
-        }
-      })
-    }
     
     recycler_view.apply {
       adapter = listsAdapter
@@ -54,21 +52,14 @@ class ListsActivity : AuthActivity() {
     }
     
     fab.setOnClickListener {
-      startActivity(ItemsActivity.intent(context, listRepo.add("New List")))
+      startActivity(
+          ItemsActivity.intent(this@ListsActivity, listRepo.add(getString(R.string.new_list))))
     }
   }
   
   override fun onStart() {
     super.onStart()
-    disposables.add(listRepo.observeLists()
-                        .subscribe({
-                                     when (it.event) {
-                                       Event.ADD -> listsAdapter.add(it.item)
-                                       Event.UPDATE -> listsAdapter.update(it.item)
-                                       Event.REMOVE -> listsAdapter.remove(it.item)
-                                     }
-                                   },
-                                   { Timber.e(it, "Error while observing lists") }))
+    disposables.add(observeLists())
   }
   
   override fun onStop() {
@@ -95,4 +86,15 @@ class ListsActivity : AuthActivity() {
       else -> return super.onOptionsItemSelected(item)
     }
   }
+  
+  private fun observeLists() =
+      listRepo.observeLists()
+          .subscribe({
+                       when (it.event) {
+                         Event.ADD -> listsAdapter.add(it.item)
+                         Event.UPDATE -> listsAdapter.update(it.item)
+                         Event.REMOVE -> listsAdapter.remove(it.item.id)
+                       }
+                     },
+                     { Timber.e(it, "Error while observing lists") })
 }

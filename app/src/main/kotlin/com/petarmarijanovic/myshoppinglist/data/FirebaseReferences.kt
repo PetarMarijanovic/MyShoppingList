@@ -2,7 +2,7 @@ package com.petarmarijanovic.myshoppinglist.data
 
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.petarmarijanovic.myshoppinglist.encodeAsFirebaseKey
+import com.petarmarijanovic.myshoppinglist.extensions.encodeAsFirebaseKey
 
 /** Created by petar on 01/08/2017. */
 class FirebaseReferences(email: String, private val database: FirebaseDatabase) {

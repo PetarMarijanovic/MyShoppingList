@@ -1,12 +1,7 @@
 package com.petarmarijanovic.myshoppinglist.screen.items
 
 import android.content.res.Resources
-import android.graphics.Canvas
-import android.graphics.Rect
-import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.helper.ItemTouchHelper
-import android.support.v7.widget.helper.ItemTouchHelper.*
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -18,7 +13,9 @@ import android.widget.TextView
 import com.petarmarijanovic.myshoppinglist.R
 import com.petarmarijanovic.myshoppinglist.data.Identity
 import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingItem
-import timber.log.Timber
+import com.petarmarijanovic.myshoppinglist.extensions.addPaddingForItems
+import com.petarmarijanovic.myshoppinglist.extensions.attachLeftRightSwipeAnimator
+import com.petarmarijanovic.myshoppinglist.extensions.reuseViewHolder
 
 /** Created by petar on 12/07/2017. */
 class ItemsAdapter : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
@@ -45,66 +42,10 @@ class ItemsAdapter : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
   override fun getItemCount() = items.size
   
   override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
-    attachItemSwipeAnimator(recyclerView)
-    attachItemDecorator(recyclerView)
-    reuseViewHolder(recyclerView)
-  }
-  
-  private fun attachItemDecorator(recyclerView: RecyclerView) {
-    recyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
-      override fun getItemOffsets(outRect: Rect,
-                                  view: View,
-                                  parent: RecyclerView,
-                                  state: RecyclerView.State) {
-        val padding = dpToPx(8f).toInt()
-        outRect.top = padding
-        outRect.left = padding
-        outRect.right = padding
-        if (parent.getChildAdapterPosition(view) == parent.adapter.itemCount - 1) outRect.bottom = 8
-      }
-    })
-  }
-  
-  private fun attachItemSwipeAnimator(recyclerView: RecyclerView) {
-    ItemTouchHelper(object : SimpleCallback(0, LEFT or RIGHT) {
-      override fun onMove(rv: RecyclerView,
-                          viewHolder: RecyclerView.ViewHolder,
-                          target: RecyclerView.ViewHolder?): Boolean {
-        Timber.d("OnMove")
-        return false
-      }
-      
-      override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
-        itemListener?.swiped(items[viewHolder.adapterPosition])
-      }
-      
-      override fun onChildDraw(c: Canvas,
-                               rv: RecyclerView,
-                               viewHolder: RecyclerView.ViewHolder,
-                               dX: Float,
-                               dY: Float,
-                               actionState: Int,
-                               isCurrentlyActive: Boolean) {
-        if (actionState != ACTION_STATE_SWIPE) {
-          super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
-        }
-        
-        val alpha = 1.0f - (Math.abs(dX) / viewHolder.itemView.width) * 2
-        viewHolder.itemView.alpha = if (alpha < 0.2f) 0.2f else alpha
-        viewHolder.itemView.translationX = dX
-      }
-    }).attachToRecyclerView(recyclerView)
-  }
-  
-  /**
-   * Reuse ViewHolder because the adapter creates a new one on every notifyItemChanged without
-   * payload, and then cross fades them. I don't use payload because I would have to look for
-   * changes manually and then send them as payload.
-   */
-  private fun reuseViewHolder(recyclerView: RecyclerView) {
-    recyclerView.itemAnimator = object : DefaultItemAnimator() {
-      override fun canReuseUpdatedViewHolder(
-          viewHolder: RecyclerView.ViewHolder, payloads: MutableList<Any>) = true
+    recyclerView.apply {
+      reuseViewHolder()
+      addPaddingForItems(dpToPx(8f).toInt())
+      attachLeftRightSwipeAnimator { itemListener?.swiped(items[it]) }
     }
   }
   

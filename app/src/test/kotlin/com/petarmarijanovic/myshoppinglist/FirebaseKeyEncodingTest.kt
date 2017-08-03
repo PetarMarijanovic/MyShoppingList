@@ -1,5 +1,7 @@
 package com.petarmarijanovic.myshoppinglist
 
+import com.petarmarijanovic.myshoppinglist.extensions.decodeFromFirebaseKey
+import com.petarmarijanovic.myshoppinglist.extensions.encodeAsFirebaseKey
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

@@ -1,4 +1,4 @@
-package com.petarmarijanovic.myshoppinglist
+package com.petarmarijanovic.myshoppinglist.extensions
 
 /** Created by petar on 02/08/2017. */
 fun String.encodeAsFirebaseKey() =

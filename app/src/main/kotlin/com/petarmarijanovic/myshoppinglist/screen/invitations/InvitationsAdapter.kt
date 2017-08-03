@@ -1,7 +1,5 @@
 package com.petarmarijanovic.myshoppinglist.screen.invitations
 
-import android.graphics.Rect
-import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +8,8 @@ import android.widget.TextView
 import com.petarmarijanovic.myshoppinglist.R
 import com.petarmarijanovic.myshoppinglist.data.Identity
 import com.petarmarijanovic.myshoppinglist.data.model.Invitation
+import com.petarmarijanovic.myshoppinglist.extensions.addPaddingForItems
+import com.petarmarijanovic.myshoppinglist.extensions.reuseViewHolder
 import com.petarmarijanovic.myshoppinglist.screen.items.dpToPx
 import kotlinx.android.synthetic.main.list_invitation.view.*
 import java.util.*
@@ -32,34 +32,9 @@ class InvitationsAdapter : RecyclerView.Adapter<InvitationsAdapter.ViewHolder>()
   override fun getItemCount() = items.size
   
   override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
-    attachItemDecorator(recyclerView)
-    reuseViewHolder(recyclerView)
-  }
-  
-  private fun attachItemDecorator(recyclerView: RecyclerView) {
-    recyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
-      override fun getItemOffsets(outRect: Rect,
-                                  view: View,
-                                  parent: RecyclerView,
-                                  state: RecyclerView.State) {
-        val padding = dpToPx(8f).toInt()
-        outRect.top = padding
-        outRect.left = padding
-        outRect.right = padding
-        if (parent.getChildAdapterPosition(view) == parent.adapter.itemCount - 1) outRect.bottom = 8
-      }
-    })
-  }
-  
-  /**
-   * Reuse ViewHolder because the adapter creates a new one on every notifyItemChanged without
-   * payload, and then cross fades them. I don't use payload because I would have to look for
-   * changes manually and then send them as payload.
-   */
-  private fun reuseViewHolder(recyclerView: RecyclerView) {
-    recyclerView.itemAnimator = object : DefaultItemAnimator() {
-      override fun canReuseUpdatedViewHolder(
-          viewHolder: RecyclerView.ViewHolder, payloads: MutableList<Any>) = true
+    recyclerView.apply {
+      reuseViewHolder()
+      addPaddingForItems(dpToPx(8f).toInt())
     }
   }
   
