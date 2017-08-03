@@ -9,8 +9,6 @@ import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
 import com.petarmarijanovic.myshoppinglist.data.Event
 import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingListRepo
 import com.petarmarijanovic.myshoppinglist.screen.AuthActivity
-import com.petarmarijanovic.myshoppinglist.screen.lists.UserListener
-import com.petarmarijanovic.myshoppinglist.screen.lists.UsersAdapter
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.screen_users.*
 import timber.log.Timber

@@ -20,7 +20,6 @@ import kotlinx.android.synthetic.main.screen_items.*
 import timber.log.Timber
 import javax.inject.Inject
 
-// TODO Dont Allow NoName Lists
 class ItemsActivity : AuthActivity() {
   
   companion object {
@@ -83,7 +82,7 @@ class ItemsActivity : AuthActivity() {
       setHasFixedSize(true)
     }
     
-    fab.setOnClickListener { itemRepo.add(listId, ShoppingItem(false, "abs", 1)) }
+    fab.setOnClickListener { itemRepo.add(listId, ShoppingItem(false, "", 1)) }
   }
   
   override fun onCreateOptionsMenu(menu: Menu): Boolean {

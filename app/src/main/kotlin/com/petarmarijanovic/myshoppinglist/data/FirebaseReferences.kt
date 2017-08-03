@@ -10,9 +10,9 @@ class FirebaseReferences(email: String, private val database: FirebaseDatabase) 
   companion object {
     private const val INVITATIONS = "invitations"
     private const val LISTS = "lists"
-    private const val ITEMS_PER_LIST = "items_per_list"
-    private const val LISTS_PER_USER = "lists_per_user"
-    private const val USERS_PER_LIST = "users_per_list"
+    private const val ITEMS_PER_LIST = "itemsPerList"
+    private const val LISTS_PER_USER = "listsPerUser"
+    private const val USERS_PER_LIST = "usersPerList"
   }
   
   private val encodedEmail = email.encodeAsFirebaseKey()

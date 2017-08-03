@@ -8,6 +8,7 @@ import android.view.MenuItem
 import com.google.firebase.auth.FirebaseAuth
 import com.petarmarijanovic.myshoppinglist.R
 import com.petarmarijanovic.myshoppinglist.application.MyShoppingListApplication
+import com.petarmarijanovic.myshoppinglist.data.Event
 import com.petarmarijanovic.myshoppinglist.data.Identity
 import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingList
 import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingListRepo
@@ -41,7 +42,7 @@ class ListsActivity : AuthActivity() {
         }
         
         override fun swiped(list: Identity<ShoppingList>) {
-          listRepo.remove(list.id)
+          listRepo.remove(list.id, list.value.users.size == 1)
         }
       })
     }
@@ -59,15 +60,20 @@ class ListsActivity : AuthActivity() {
   
   override fun onStart() {
     super.onStart()
-    listsAdapter.clear()
-    // TODO THIS IS NOT GOOOOOOODDDDD!!!!!!! WHAT ABOUT UPDATE
     disposables.add(listRepo.observeLists()
-                        .subscribe({ listsAdapter.addAll(it) },
+                        .subscribe({
+                                     when (it.event) {
+                                       Event.ADD -> listsAdapter.add(it.item)
+                                       Event.UPDATE -> listsAdapter.update(it.item)
+                                       Event.REMOVE -> listsAdapter.remove(it.item)
+                                     }
+                                   },
                                    { Timber.e(it, "Error while observing lists") }))
   }
   
   override fun onStop() {
     disposables.clear()
+    listsAdapter.clear()
     super.onStop()
   }
   
