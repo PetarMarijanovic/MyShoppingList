@@ -76,6 +76,7 @@ dependencies {
     compile "com.androidhuman.rxfirebase2:firebase-database-kotlin:$rx_firebase_version"
     compile "com.androidhuman.rxfirebase2:firebase-auth-kotlin:$rx_firebase_version"
 
+    compile 'com.akaita.java:rxjava2-debug:1.2.0'
 
     compile "com.android.support:appcompat-v7:$support_library_version"
     compile "com.android.support:recyclerview-v7:$support_library_version"

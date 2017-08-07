@@ -1,6 +1,7 @@
 package com.petarmarijanovic.myshoppinglist.application
 
 import android.app.Application
+import com.akaita.java.rxjava2debug.RxJava2Debug
 import com.petarmarijanovic.myshoppinglist.application.config.ApplicationConfig
 import com.petarmarijanovic.myshoppinglist.di.component.AppComponent
 import com.petarmarijanovic.myshoppinglist.di.component.DaggerAppComponent
@@ -26,6 +27,9 @@ class MyShoppingListApplication : Application() {
     appComponent.inject(this)
     
     applicationConfigs.forEach { it.configure() }
+    
+    // Any crash-reporting handler should be set up before calling this method
+    RxJava2Debug.enableRxJava2AssemblyTracking(arrayOf("com.petarmarijanovic"))
   }
   
   /** https://github.com/PetarMarijanovic/MyShoppingList/issues/2 */
