@@ -6,14 +6,13 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.TextView
 import com.petarmarijanovic.myshoppinglist.R
 import com.petarmarijanovic.myshoppinglist.data.Identity
 import com.petarmarijanovic.myshoppinglist.data.repo.ShoppingItem
-import com.petarmarijanovic.myshoppinglist.extensions.addPaddingForItems
 import com.petarmarijanovic.myshoppinglist.extensions.attachLeftRightSwipeAnimator
 import com.petarmarijanovic.myshoppinglist.extensions.reuseViewHolder
 
@@ -22,6 +21,7 @@ class ItemsAdapter : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
   
   private val items: MutableList<Identity<ShoppingItem>> = ArrayList()
   private var itemListener: ItemListener? = null
+  private var focusNextItem = false
   
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
     val view = LayoutInflater.from(parent.context)
@@ -44,9 +44,12 @@ class ItemsAdapter : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
   override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
     recyclerView.apply {
       reuseViewHolder()
-      addPaddingForItems(dpToPx(8f).toInt())
       attachLeftRightSwipeAnimator { itemListener?.swiped(items[it]) }
     }
+  }
+  
+  fun focusNextItem(focus: Boolean) {
+    focusNextItem = true
   }
   
   fun clear() {
@@ -82,11 +85,14 @@ class ItemsAdapter : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
     
     private val checkbox = view.findViewById(R.id.checkbox) as CheckBox
     private val name = view.findViewById(R.id.name) as EditText
-    private val minus = view.findViewById(R.id.minus) as Button
+    private val minus = view.findViewById(R.id.minus) as ImageButton
     private val quantity = view.findViewById(R.id.quantity) as TextView
-    private val plus = view.findViewById(R.id.plus) as Button
+    private val plus = view.findViewById(R.id.plus) as ImageButton
     
     init {
+      if (focusNextItem) name.requestFocus()
+      focusNextItem = false
+      
       checkbox.setOnCheckedChangeListener { _, isChecked ->
         name.clearFocus()
         itemListener?.checked(isChecked, items[layoutPosition])

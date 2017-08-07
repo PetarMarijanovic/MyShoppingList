@@ -82,7 +82,10 @@ class ItemsActivity : AuthActivity() {
       setHasFixedSize(true)
     }
     
-    fab.setOnClickListener { itemRepo.add(listId, ShoppingItem(false, "", 1)) }
+    fab.setOnClickListener {
+      itemsAdapter.focusNextItem(true)
+      itemRepo.add(listId, ShoppingItem(false, "", 1))
+    }
   }
   
   override fun onCreateOptionsMenu(menu: Menu): Boolean {
